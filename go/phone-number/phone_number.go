@@ -7,9 +7,10 @@ import (
 	"regexp"
 )
 
+var re = regexp.MustCompile(`(?:\+)?(1)?(?:\s*)\(?([2-9]\d{2})\)?(?:\s*|[-.])([2-9]\d{2})(?:\s*|[-.])(\d{4})(?:\s*)`)
+
 // Number validates the input phone number.
 func Number(input string) (string, error) {
-	var re = regexp.MustCompile(`(?:\+)?(1)?(?:\s*)\(?([2-9]\d{2})\)?(?:\s*|[-.])([2-9]\d{2})(?:\s*|[-.])(\d{4})(?:\s*)`)
 	if !re.MatchString(input) {
 		return "", errors.New("No match")
 	}
