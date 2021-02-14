@@ -4,15 +4,15 @@ contains raindrop sounds corresponding to certain potential factors.
 */
 package raindrops
 
-import "fmt"
+import "strconv"
 
 /*
 Convert returns a string that contains raindrop sounds corresponding to certain
 potential factors.
 */
 func Convert(input int) string {
-	result := ""
 
+	var result string
 	if input%3 == 0 {
 		result = "Pling"
 	}
@@ -26,7 +26,7 @@ func Convert(input int) string {
 	}
 
 	if len(result) == 0 {
-		result = fmt.Sprintf("%d", input)
+		return strconv.Itoa(input)
 	}
 
 	return result
