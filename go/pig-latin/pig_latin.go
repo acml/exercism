@@ -11,14 +11,14 @@ func Sentence(input string) string {
 	for _, input := range inputs {
 		if strings.HasPrefix(input, "xr") || strings.HasPrefix(input, "yt") || strings.IndexAny(input, "aeiou") == 0 {
 			res = append(res, input+"ay")
-		} else {
-			index := strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("aeio", r) })
-			if index < 0 {
-				index = strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("uy", r) })
-			}
-			res = append(res, input[index:]+input[:index]+"ay")
+			continue
 		}
+
+		index := strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("aeio", r) })
+		if index < 0 {
+			index = strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("uy", r) })
+		}
+		res = append(res, input[index:]+input[:index]+"ay")
 	}
 	return strings.Join(res, " ")
-
 }
