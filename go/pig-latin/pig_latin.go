@@ -5,20 +5,20 @@ import "strings"
 // Sentence converts input strings to Pig Latin which is a made-up children's
 // language that's intended to be confusing.
 func Sentence(input string) string {
-	inputs := strings.Fields(input)
+	words := strings.Fields(input)
 
 	res := []string{}
-	for _, input := range inputs {
-		if strings.HasPrefix(input, "xr") || strings.HasPrefix(input, "yt") || strings.IndexAny(input, "aeiou") == 0 {
-			res = append(res, input+"ay")
+	for _, word := range words {
+		if strings.HasPrefix(word, "xr") || strings.HasPrefix(word, "yt") || strings.IndexAny(word, "aeiou") == 0 {
+			res = append(res, word+"ay")
 			continue
 		}
 
-		index := strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("aeio", r) })
+		index := strings.IndexFunc(word, func(r rune) bool { return strings.ContainsRune("aeio", r) })
 		if index < 0 {
-			index = strings.IndexFunc(input, func(r rune) bool { return strings.ContainsRune("uy", r) })
+			index = strings.IndexFunc(word, func(r rune) bool { return strings.ContainsRune("uy", r) })
 		}
-		res = append(res, input[index:]+input[:index]+"ay")
+		res = append(res, word[index:]+word[:index]+"ay")
 	}
 	return strings.Join(res, " ")
 }
