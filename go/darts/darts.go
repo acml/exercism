@@ -2,9 +2,9 @@ package darts
 
 import "math"
 
+// Score returns the earned points in a single toss of a Darts game.
 func Score(x, y float64) int {
-	distance := math.Sqrt(x*x + y*y)
-	if distance > 10 {
+	if distance := math.Sqrt(x*x + y*y); distance > 10 {
 		return 0
 	} else if distance <= 10 && distance > 5 {
 		return 1
