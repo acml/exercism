@@ -4,14 +4,17 @@ import (
 	"strings"
 )
 
-// Convert a phrase to its acronym.
+// Abbreviate converts a phrase to its acronym.
 func Abbreviate(s string) string {
-	acronym := ""
-	s = strings.ReplaceAll(s, "-", " ")
-	s = strings.ReplaceAll(s, "_", " ")
-	substrings := strings.Fields(s)
-	for i := range substrings {
-		acronym += substrings[i][0:1]
+	fieldsPredicate := func(r rune) bool {
+		if r == '-' || r == '_' || r == ' ' {
+			return true
+		}
+		return false
 	}
-	return strings.ToUpper(acronym)
+	var acronym strings.Builder
+	for _, word := range strings.FieldsFunc(s, fieldsPredicate) {
+		acronym.WriteString(word[0:1])
+	}
+	return strings.ToUpper(acronym.String())
 }
