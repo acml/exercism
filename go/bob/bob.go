@@ -5,26 +5,26 @@ import (
 	"unicode"
 )
 
-func is_question(remark string) bool {
+func isQuestion(remark string) bool {
 	return strings.HasSuffix(strings.TrimSpace(remark), "?")
 }
 
-func is_yelling(remark string) bool {
-	is_letter, is_upper := 0, 0
+func isYelling(remark string) bool {
+	isLetter, isUpper := 0, 0
 
 	for _, c := range remark {
 		if unicode.IsLetter(c) {
-			is_letter++
+			isLetter++
 			if unicode.IsUpper(c) {
-				is_upper++
+				isUpper++
 			}
 		}
 	}
 
-	return is_letter > 0 && is_letter == is_upper
+	return isLetter > 0 && isLetter == isUpper
 }
 
-func is_silence(remark string) bool {
+func isSilence(remark string) bool {
 	for _, c := range remark {
 		if !unicode.IsSpace(c) {
 			return false
@@ -33,16 +33,16 @@ func is_silence(remark string) bool {
 	return true
 }
 
-// Lackadaisical teenager conversation.
+// Hey simulates a lackadaisical teenager conversation.
 func Hey(remark string) string {
-	if is_question(remark) {
-		if is_yelling(remark) {
+	if isQuestion(remark) {
+		if isYelling(remark) {
 			return "Calm down, I know what I'm doing!"
 		}
 		return "Sure."
-	} else if is_yelling(remark) {
+	} else if isYelling(remark) {
 		return "Whoa, chill out!"
-	} else if is_silence(remark) {
+	} else if isSilence(remark) {
 		return "Fine. Be that way!"
 	}
 	return "Whatever."
