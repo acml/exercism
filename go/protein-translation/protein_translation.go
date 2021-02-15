@@ -18,22 +18,22 @@ var ErrInvalidBase = err{"Invalid protein sequence"}
 
 // FromCodon matches codons to correspondent amino acids
 func FromCodon(codon string) (string, error) {
-	switch {
-	case codon == "AUG":
+	switch codon {
+	case "AUG":
 		return "Methionine", nil
-	case codon == "UUU" || codon == "UUC":
+	case "UUU", "UUC":
 		return "Phenylalanine", nil
-	case codon == "UUA" || codon == "UUG":
+	case "UUA", "UUG":
 		return "Leucine", nil
-	case codon == "UCU" || codon == "UCC" || codon == "UCA" || codon == "UCG":
+	case "UCU", "UCC", "UCA", "UCG":
 		return "Serine", nil
-	case codon == "UAU" || codon == "UAC":
+	case "UAU", "UAC":
 		return "Tyrosine", nil
-	case codon == "UGU" || codon == "UGC":
+	case "UGU", "UGC":
 		return "Cysteine", nil
-	case codon == "UGG":
+	case "UGG":
 		return "Tryptophan", nil
-	case codon == "UAA" || codon == "UAG" || codon == "UGA":
+	case "UAA", "UAG", "UGA":
 		return "", ErrStop
 	}
 	return "", ErrInvalidBase
