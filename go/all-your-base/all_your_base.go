@@ -1,4 +1,4 @@
-// Package allyourbase provides a base convertion function
+// Package allyourbase provides a base conversion function
 package allyourbase
 
 import "errors"

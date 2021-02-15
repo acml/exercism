@@ -7,7 +7,7 @@ type WeekSchedule int
 
 // first, second ... match of day
 const (
-	// First occurence of day
+	// First occurrence of day
 	First WeekSchedule = iota
 	Second
 	Third
