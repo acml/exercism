@@ -35,9 +35,8 @@ func FromCodon(codon string) (string, error) {
 		return "Tryptophan", nil
 	case codon == "UAA" || codon == "UAG" || codon == "UGA":
 		return "", ErrStop
-	default:
-		return "", ErrInvalidBase
 	}
+	return "", ErrInvalidBase
 }
 
 // FromRNA translates RNA sequences to amino acid sequences
