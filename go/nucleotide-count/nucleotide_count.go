@@ -16,12 +16,14 @@ type DNA string
 // Here, the Counts method has a receiver of type DNA named d.
 func (d DNA) Counts() (Histogram, error) {
 	var h = Histogram{
-		'A': 0, 'C':0, 'G':0, 'T':0,
+		'A': 0, 'C': 0, 'G': 0, 'T': 0,
 	}
 	for _, char := range d {
 		switch char {
-		case 'A', 'C', 'G', 'T': h[char]++
-		default: return h, errors.New("Invalid nucleotids")
+		case 'A', 'C', 'G', 'T':
+			h[char]++
+		default:
+			return h, errors.New("Invalid nucleotids")
 		}
 	}
 	return h, nil

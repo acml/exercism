@@ -15,12 +15,13 @@ func (s IntList) Length() int {
 }
 
 func (s1 IntList) Append(s2 IntList) IntList {
-	s := make(IntList, s1.Length() + s2.Length())
+	s := make(IntList, s1.Length()+s2.Length())
 	for i, v := range s1 {
 		s[i] = v
 	}
+	s1len := s1.Length()
 	for i, v := range s2 {
-		s[i+s1.Length()] = v
+		s[s1len+i] = v
 	}
 	return s
 }
@@ -82,7 +83,7 @@ func (s IntList) Foldr(f func(int, int) int, acc int) int {
 
 func (s IntList) Reverse() IntList {
 	r := make(IntList, s.Length())
-	for i, j := s.Length() - 1, 0; i >= 0; {
+	for i, j := s.Length()-1, 0; i >= 0; {
 		r[i] = s[j]
 		i--
 		j++

@@ -62,7 +62,7 @@ func Scale(tonic, interval string) []string {
 			} else {
 				i = (i + 1) % len(scale)
 			}
-			if (strings.ToUpper(tonic) != strings.ToUpper(scale[i])) {
+			if strings.ToUpper(tonic) != strings.ToUpper(scale[i]) {
 				r[j] = scale[i]
 				j++
 			}
