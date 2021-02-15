@@ -2,25 +2,12 @@ package scale
 
 import "strings"
 
-// No Sharps or Flats:
-// C major
-// a minor
+var chromaticScaleWithSharps = []string{"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"}
+var chromaticScaleWithFlats = []string{"A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"}
 
-// Use Sharps:
-// G, D, A, E, B, F# major
-// e, b, f#, c#, g#, d# minor
-
-// Use Flats:
-// F, Bb, Eb, Ab, Db, Gb major
-// d, g, c, f, bb, eb minor
-
-var chromatic_scale_with_sharps = []string{"A", "A#", "B", "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#"}
-var chromatic_scale_with_flats = []string{"A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab"}
-
-var sharps = []string{"G", "D", "A", "E", "B", "F#", "e", "b", "f#", "c#", "g#", "d#"}
 var flats = []string{"F", "Bb", "Eb", "Ab", "Db", "Gb", "d", "g", "c", "f", "bb", "eb"}
 
-func use_flats(tonic string) bool {
+func useFlats(tonic string) bool {
 	for _, v := range flats {
 		if tonic == v {
 			return true
@@ -29,18 +16,21 @@ func use_flats(tonic string) bool {
 	return false
 }
 
+// Scale given a tonic, or starting note, and a set of intervals, generates the
+// musical scale starting with the tonic and following the specified interval
+// pattern.
 func Scale(tonic, interval string) []string {
+
+	var scale []string
+	if useFlats(tonic) {
+		scale = chromaticScaleWithFlats
+	} else {
+		scale = chromaticScaleWithSharps
+	}
 	var i int
 	var v string
-	var scale []string
-
-	if use_flats(tonic) {
-		scale = chromatic_scale_with_flats
-	} else {
-		scale = chromatic_scale_with_sharps
-	}
 	for i, v = range scale {
-		if strings.ToUpper(v) == strings.ToUpper(tonic) {
+		if strings.EqualFold(v, tonic) {
 			break
 		}
 	}
@@ -62,7 +52,7 @@ func Scale(tonic, interval string) []string {
 			} else {
 				i = (i + 1) % len(scale)
 			}
-			if strings.ToUpper(tonic) != strings.ToUpper(scale[i]) {
+			if !strings.EqualFold(tonic, scale[i]) {
 				r[j] = scale[i]
 				j++
 			}
