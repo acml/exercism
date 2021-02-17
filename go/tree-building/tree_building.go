@@ -49,7 +49,7 @@ func Build(records []Record) (*Node, error) {
 		}
 
 		if err := treeAddNode(&r, tree); err != nil {
-			return tree, err
+			return nil, err
 		}
 	}
 	return tree, nil
