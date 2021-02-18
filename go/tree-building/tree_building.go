@@ -19,26 +19,22 @@ type Node struct {
 
 // Build constructs tree structures from unsorted set of records.
 func Build(records []Record) (*Node, error) {
+
 	sort.Slice(records, func(i, j int) bool {
 		return records[i].ID < records[j].ID
 	})
-	var tree *Node
-	for i, r := range records {
-		if i == 0 {
-			switch {
-			case r.ID != 0:
-				return nil, errors.New("no root mode")
-			case r.Parent > 0:
-				return nil, errors.New("root node has parent")
-			}
 
-			tree = &Node{
-				ID: 0,
-			}
-			continue
-		}
+	if len(records) == 0 {
+		return nil, nil
+	}
+	if records[0].ID != 0 || records[0].Parent != 0 {
+		return nil, errors.New("erroneous root node")
+	}
+
+	tree := &Node{ID: 0}
+	for i, r := range records[1:] {
 		switch {
-		case r.ID != records[i-1].ID+1:
+		case r.ID != records[i].ID+1:
 			return nil, errors.New("non-continuous")
 		case r.ID <= r.Parent:
 			return nil, errors.New("higher id parent of lower id")
@@ -53,17 +49,13 @@ func Build(records []Record) (*Node, error) {
 
 func treeAddNode(r *Record, n *Node) error {
 	if r.Parent == n.ID {
-		n.Children = append(n.Children, &Node{
-			ID: r.ID,
-		})
+		n.Children = append(n.Children, &Node{ID: r.ID})
 		return nil
 	}
 
 	for _, c := range n.Children {
 		if r.Parent == c.ID {
-			c.Children = append(c.Children, &Node{
-				ID: r.ID,
-			})
+			c.Children = append(c.Children, &Node{ID: r.ID})
 			return nil
 		}
 	}
