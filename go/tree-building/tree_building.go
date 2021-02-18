@@ -38,13 +38,9 @@ func Build(records []Record) (*Node, error) {
 			continue
 		}
 		switch {
-		case records[i].ID == records[i-1].ID:
-			return nil, errors.New("duplicate record")
-		case records[i].ID != records[i-1].ID+1:
+		case r.ID != records[i-1].ID+1:
 			return nil, errors.New("non-continuous")
-		case records[i].ID == records[i].Parent:
-			return nil, errors.New("cycle directly")
-		case records[i].ID <= records[i].Parent:
+		case r.ID <= r.Parent:
 			return nil, errors.New("higher id parent of lower id")
 		}
 
