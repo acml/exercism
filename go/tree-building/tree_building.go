@@ -20,13 +20,14 @@ type Node struct {
 // Build constructs tree structures from unsorted set of records.
 func Build(records []Record) (*Node, error) {
 
+	if len(records) == 0 {
+		return nil, nil
+	}
+
 	sort.Slice(records, func(i, j int) bool {
 		return records[i].ID < records[j].ID
 	})
 
-	if len(records) == 0 {
-		return nil, nil
-	}
 	if records[0].ID != 0 || records[0].Parent != 0 {
 		return nil, errors.New("erroneous root node")
 	}
