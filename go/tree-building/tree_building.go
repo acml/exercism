@@ -33,11 +33,8 @@ func Build(records []Record) (*Node, error) {
 
 	tree := &Node{ID: 0}
 	for i, r := range records[1:] {
-		switch {
-		case r.ID != records[i].ID+1:
+		if r.ID <= r.Parent || r.ID != records[i].ID+1 {
 			return nil, errors.New("non-continuous")
-		case r.ID <= r.Parent:
-			return nil, errors.New("higher id parent of lower id")
 		}
 
 		if err := treeAddNode(&r, tree); err != nil {
