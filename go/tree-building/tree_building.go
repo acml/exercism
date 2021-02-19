@@ -38,24 +38,18 @@ func Build(records []Record) (*Node, error) {
 			return nil, errors.New("non-continuous")
 		}
 
-		if err := treeAddNode(&r, tree); err != nil {
-			return nil, err
+		if r.Parent == tree.ID {
+			tree.Children = append(tree.Children, &Node{ID: r.ID})
+			continue
+		}
+
+		for _, c := range tree.Children {
+			if r.Parent == c.ID {
+				c.Children = append(c.Children, &Node{ID: r.ID})
+				break
+			}
 		}
 	}
+
 	return tree, nil
-}
-
-func treeAddNode(r *Record, n *Node) error {
-	if r.Parent == n.ID {
-		n.Children = append(n.Children, &Node{ID: r.ID})
-		return nil
-	}
-
-	for _, c := range n.Children {
-		if r.Parent == c.ID {
-			c.Children = append(c.Children, &Node{ID: r.ID})
-			return nil
-		}
-	}
-	return errors.New("add node failed")
 }
