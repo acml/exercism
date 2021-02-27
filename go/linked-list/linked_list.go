@@ -108,19 +108,10 @@ func (l *List) PopBack() (interface{}, error) {
 // Reverse reverses the list elements
 func (l *List) Reverse() *List {
 
-	b, e := l.head, l.tail
-	if b == e {
-		return l
+	for n := l.head; n != nil; n = n.prev {
+		n.next, n.prev = n.prev, n.next
 	}
-
-	for {
-		b.Val, e.Val = e.Val, b.Val
-		if b.next == e || b.next == e.prev {
-			break
-		}
-		b, e = b.next, e.prev
-	}
-
+	l.head, l.tail = l.tail, l.head
 	return l
 }
 
