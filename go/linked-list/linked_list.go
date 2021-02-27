@@ -20,11 +20,17 @@ var ErrEmptyList = errors.New("list is empty")
 
 // Next returns the next node in the chain
 func (e *Node) Next() *Node {
+	if e == nil {
+		return nil
+	}
 	return e.next
 }
 
 // Prev returns the previous node in the chain
 func (e *Node) Prev() *Node {
+	if e == nil {
+		return nil
+	}
 	return e.prev
 }
 
