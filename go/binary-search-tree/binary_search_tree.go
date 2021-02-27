@@ -7,7 +7,7 @@ type SearchTreeData struct {
 	right *SearchTreeData
 }
 
-// Bst initalizes a search tree
+// Bst initializes a search tree
 func Bst(val int) *SearchTreeData {
 	return &SearchTreeData{data: val}
 }
