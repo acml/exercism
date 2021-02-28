@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+var langs = map[string]struct{
+	date string
+	description string
+	change string
+} {
+	"en-US": { "Date", "Description", "Change" },
+	"nl-NL": { "Datum", "Omschrijving", "Verandering" },
+}
+
 type Entry struct {
 	Date        string // "Y-m-d"
 	Description string
@@ -29,24 +38,6 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			entriesCopy[i].Change < entriesCopy[j].Change
 	})
 
-	var s string
-	if locale == "nl-NL" {
-		s = "Datum" +
-			strings.Repeat(" ", 10-len("Datum")) +
-			" | " +
-			"Omschrijving" +
-			strings.Repeat(" ", 25-len("Omschrijving")) +
-			" | " + "Verandering" + "\n"
-	} else if locale == "en-US" {
-		s = "Date" +
-			strings.Repeat(" ", 10-len("Date")) +
-			" | " +
-			"Description" +
-			strings.Repeat(" ", 25-len("Description")) +
-			" | " + "Change" + "\n"
-	} else {
-		return "", errors.New("")
-	}
 	// Parallelism, always a great idea
 	co := make(chan struct {
 		i int
@@ -205,6 +196,19 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		}
 		ss[v.i] = v.s
 	}
+
+	var s string
+	if l, ok := langs[locale]; !ok {
+		return "", errors.New("")
+	} else {
+		s = l.date +
+			strings.Repeat(" ", 10-len(l.date)) +
+			" | " +
+			l.description +
+			strings.Repeat(" ", 25-len(l.description)) +
+			" | " + l.change + "\n"
+	}
+
 	for i := 0; i < len(entriesCopy); i++ {
 		s += ss[i]
 	}
