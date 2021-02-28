@@ -7,13 +7,18 @@ import (
 	"strings"
 )
 
-var langs = map[string]struct{
+var lang = map[string]struct{
 	date string
 	description string
 	change string
 } {
 	"en-US": { "Date", "Description", "Change" },
 	"nl-NL": { "Datum", "Omschrijving", "Verandering" },
+}
+
+var symbol = map[string]string {
+	"EUR": "€",
+	"USD": "$",
 }
 
 type Entry struct {
@@ -88,17 +93,14 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			}
 			var a string
 			if locale == "nl-NL" {
-				if currency == "EUR" {
-					a += "€"
-				} else if currency == "USD" {
-					a += "$"
-				} else {
+				if _, ok := symbol[currency]; !ok {
 					co <- struct {
 						i int
 						s string
 						e error
 					}{e: errors.New("")}
 				}
+				a += symbol[currency]
 				a += " "
 				centsStr := strconv.Itoa(cents)
 				switch len(centsStr) {
@@ -131,17 +133,14 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				if negative {
 					a += "("
 				}
-				if currency == "EUR" {
-					a += "€"
-				} else if currency == "USD" {
-					a += "$"
-				} else {
+				if _, ok := symbol[currency]; !ok {
 					co <- struct {
 						i int
 						s string
 						e error
 					}{e: errors.New("")}
 				}
+				a += symbol[currency]
 				centsStr := strconv.Itoa(cents)
 				switch len(centsStr) {
 				case 1:
@@ -198,7 +197,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	}
 
 	var s string
-	if l, ok := langs[locale]; !ok {
+	if l, ok := lang[locale]; !ok {
 		return "", errors.New("")
 	} else {
 		s = l.date +
