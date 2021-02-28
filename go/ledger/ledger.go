@@ -23,18 +23,8 @@ type literals struct {
 }
 
 var langs = map[string]literals{
-	"en-US": {
-		"Date",
-		"Description",
-		"Change",
-		numbers{ ".", ",", "(", ")", ""},
-	},
-	"nl-NL": {
-		"Datum",
-		"Omschrijving",
-		"Verandering",
-		numbers{ ",", ".", "", "-", " "},
-	},
+	"en-US": { "Date",  "Description",  "Change",      numbers{ ".", ",", "(", ")", "" }, },
+	"nl-NL": { "Datum", "Omschrijving", "Verandering", numbers{ ",", ".", "",  "-", " "}, },
 }
 
 var symbol = map[string]string {
