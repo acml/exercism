@@ -2,6 +2,7 @@ package ledger
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -20,25 +21,13 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			return "", err
 		}
 	}
-	m1 := map[bool]int{true: 0, false: 1}
-	m2 := map[bool]int{true: -1, false: 1}
-	es := entriesCopy
-	for len(es) > 1 {
-		first, rest := es[0], es[1:]
-		success := false
-		for !success {
-			success = true
-			for i, e := range rest {
-				if (m1[e.Date == first.Date]*m2[e.Date < first.Date]*4 +
-					m1[e.Description == first.Description]*m2[e.Description < first.Description]*2 +
-					m1[e.Change == first.Change]*m2[e.Change < first.Change]*1) < 0 {
-					es[0], es[i+1] = es[i+1], es[0]
-					success = false
-				}
-			}
-		}
-		es = es[1:]
-	}
+
+	// sort entries by date, description and change amount
+	sort.Slice(entriesCopy, func(i, j int) bool {
+		return entriesCopy[i].Date < entriesCopy[j].Date ||
+			entriesCopy[i].Description < entriesCopy[j].Description ||
+			entriesCopy[i].Change < entriesCopy[j].Change
+	})
 
 	var s string
 	if locale == "nl-NL" {
