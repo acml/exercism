@@ -27,15 +27,35 @@ var langs = map[string]literals{
 	"nl-NL": { "Datum", "Omschrijving", "Verandering", numbers{ ",", ".", "",  "-", " "}, },
 }
 
-var symbol = map[string]string {
-	"EUR": "€",
-	"USD": "$",
+var symbol = map[string]rune {
+	"EUR": '€',
+	"USD": '$',
 }
 
 type Entry struct {
 	Date        string // "Y-m-d"
 	Description string
 	Change      int // in cents
+}
+
+func formatDate(input, locale string) (string, error) {
+	if len(input) != 10 {
+		return "", errors.New("")
+	}
+
+	date := strings.SplitN(input, "-", 3)
+	if len(date) != 3 || len(date[0]) != 4 || len(date[1]) > 2 || len(date[2]) > 2 {
+		return "", errors.New("")
+	}
+
+	switch locale {
+	case "nl-NL":
+		return date[2] + "-" + date[1] + "-" + date[0], nil
+	case "en-US":
+		return date[1] + "/" + date[2] + "/" + date[0], nil
+	}
+
+	return "", errors.New("")
 }
 
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
@@ -51,7 +71,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		return "", errors.New("")
 	}
 
-	var currencySymbol string
+	var currencySymbol rune
 	if currencySymbol, ok = symbol[currency]; !ok {
 		return "", errors.New("")
 	}
@@ -73,39 +93,19 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	})
 	for i, et := range entriesCopy {
 		go func(i int, entry Entry) {
-			if len(entry.Date) != 10 {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("")}
-			}
-			d1, d2, d3, d4, d5 := entry.Date[0:4], entry.Date[4], entry.Date[5:7], entry.Date[7], entry.Date[8:10]
-			if d2 != '-' {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("")}
-			}
-			if d4 != '-' {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("")}
-			}
 			de := entry.Description
 			if len(de) > 25 {
 				de = de[:22] + "..."
 			} else {
 				de = de + strings.Repeat(" ", 25-len(de))
 			}
-			var d string
-			if locale == "nl-NL" {
-				d = d5 + "-" + d3 + "-" + d1
-			} else if locale == "en-US" {
-				d = d3 + "/" + d5 + "/" + d1
+			d, ok := formatDate(entry.Date, locale)
+			if ok != nil {
+				co <- struct {
+					i int
+					s string
+					e error
+				}{e: ok}
 			}
 			negative := false
 			cents := entry.Change
@@ -117,7 +117,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			if negative {
 				a += lang.number.negativeStart
 			}
-			a += currencySymbol
+			a += string(currencySymbol)
 			a += lang.number.symbolSeparator
 			centsStr := strconv.Itoa(cents)
 			switch len(centsStr) {
