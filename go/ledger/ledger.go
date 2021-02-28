@@ -7,13 +7,34 @@ import (
 	"strings"
 )
 
-var lang = map[string]struct{
+type numbers struct {
+	decimalSeperator string
+	digitGrouping string
+	negativeStart string
+	negativeEnd   string
+	symbolSeparator string
+}
+
+type literals struct {
 	date string
 	description string
 	change string
-} {
-	"en-US": { "Date", "Description", "Change" },
-	"nl-NL": { "Datum", "Omschrijving", "Verandering" },
+	number numbers
+}
+
+var langs = map[string]literals{
+	"en-US": {
+		"Date",
+		"Description",
+		"Change",
+		numbers{ ".", ",", "(", ")", ""},
+	},
+	"nl-NL": {
+		"Datum",
+		"Omschrijving",
+		"Verandering",
+		numbers{ ",", ".", "", "-", " "},
+	},
 }
 
 var symbol = map[string]string {
@@ -32,6 +53,17 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
 			return "", err
 		}
+	}
+
+	var lang literals
+	var ok bool
+	if lang, ok = langs[locale]; !ok {
+		return "", errors.New("")
+	}
+
+	var currencySymbol string
+	if currencySymbol, ok = symbol[currency]; !ok {
+		return "", errors.New("")
 	}
 
 	var entriesCopy []Entry
@@ -92,89 +124,46 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				negative = true
 			}
 			var a string
-			if locale == "nl-NL" {
-				if _, ok := symbol[currency]; !ok {
-					co <- struct {
-						i int
-						s string
-						e error
-					}{e: errors.New("")}
-				}
-				a += symbol[currency]
-				a += " "
-				centsStr := strconv.Itoa(cents)
-				switch len(centsStr) {
-				case 1:
-					centsStr = "00" + centsStr
-				case 2:
-					centsStr = "0" + centsStr
-				}
-				rest := centsStr[:len(centsStr)-2]
-				var parts []string
-				for len(rest) > 3 {
-					parts = append(parts, rest[len(rest)-3:])
-					rest = rest[:len(rest)-3]
-				}
-				if len(rest) > 0 {
-					parts = append(parts, rest)
-				}
-				for i := len(parts) - 1; i >= 0; i-- {
-					a += parts[i] + "."
-				}
-				a = a[:len(a)-1]
-				a += ","
-				a += centsStr[len(centsStr)-2:]
-				if negative {
-					a += "-"
-				} else {
-					a += " "
-				}
-			} else if locale == "en-US" {
-				if negative {
-					a += "("
-				}
-				if _, ok := symbol[currency]; !ok {
-					co <- struct {
-						i int
-						s string
-						e error
-					}{e: errors.New("")}
-				}
-				a += symbol[currency]
-				centsStr := strconv.Itoa(cents)
-				switch len(centsStr) {
-				case 1:
-					centsStr = "00" + centsStr
-				case 2:
-					centsStr = "0" + centsStr
-				}
-				rest := centsStr[:len(centsStr)-2]
-				var parts []string
-				for len(rest) > 3 {
-					parts = append(parts, rest[len(rest)-3:])
-					rest = rest[:len(rest)-3]
-				}
-				if len(rest) > 0 {
-					parts = append(parts, rest)
-				}
-				for i := len(parts) - 1; i >= 0; i-- {
-					a += parts[i] + ","
-				}
-				a = a[:len(a)-1]
-				a += "."
-				a += centsStr[len(centsStr)-2:]
-				if negative {
-					a += ")"
-				} else {
-					a += " "
-				}
-			} else {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: errors.New("")}
+			if negative {
+				a += lang.number.negativeStart
 			}
+			a += currencySymbol
+			a += lang.number.symbolSeparator
+			centsStr := strconv.Itoa(cents)
+			switch len(centsStr) {
+			case 1:
+				centsStr = "00" + centsStr
+			case 2:
+				centsStr = "0" + centsStr
+			}
+			rest := centsStr[:len(centsStr)-2]
+			// Groups the cents in groups of three digits
+			var parts []string
+			for len(rest) > 3 {
+				parts = append(parts, rest[len(rest)-3:])
+				rest = rest[:len(rest)-3]
+			}
+			// After groups of three digits last one is the rest
+			if len(rest) > 0 {
+				parts = append(parts, rest)
+			}
+			// Print the whole part with digit grouping seperator
+			for i := len(parts) - 1; i >= 0; i-- {
+				a += parts[i] + lang.number.digitGrouping
+			}
+			// delete the last digit group seperator
+			a = a[:len(a)-1]
+			// append decimal seperator
+			a += lang.number.decimalSeperator
+			// append decimal amount
+			a += centsStr[len(centsStr)-2:]
+			// append negative end symbol
+			if negative {
+				a += lang.number.negativeEnd
+			} else {
+				a += " "
+			}
+
 			var al int
 			for range a {
 				al++
@@ -196,17 +185,12 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		ss[v.i] = v.s
 	}
 
-	var s string
-	if l, ok := lang[locale]; !ok {
-		return "", errors.New("")
-	} else {
-		s = l.date +
-			strings.Repeat(" ", 10-len(l.date)) +
-			" | " +
-			l.description +
-			strings.Repeat(" ", 25-len(l.description)) +
-			" | " + l.change + "\n"
-	}
+	s := lang.date +
+		strings.Repeat(" ", 10-len(lang.date)) +
+		" | " +
+		lang.description +
+		strings.Repeat(" ", 25-len(lang.description)) +
+		" | " + lang.change + "\n"
 
 	for i := 0; i < len(entriesCopy); i++ {
 		s += ss[i]
