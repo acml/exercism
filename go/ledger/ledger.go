@@ -2,8 +2,8 @@ package ledger
 
 import (
 	"errors"
+	"fmt"
 	"sort"
-	"strconv"
 	"strings"
 )
 
@@ -63,7 +63,7 @@ func formatDate(input, locale string) (string, error) {
 func formatChange(cents int, number numbers, currencySymbol rune) string {
 	negative := false
 	if cents < 0 {
-		cents = cents * -1
+		cents = -cents
 		negative = true
 	}
 	var a string
@@ -72,14 +72,8 @@ func formatChange(cents int, number numbers, currencySymbol rune) string {
 	}
 	a += string(currencySymbol)
 	a += number.symbolSeparator
-	centsStr := strconv.Itoa(cents)
-	switch len(centsStr) {
-	case 1:
-		centsStr = "00" + centsStr
-	case 2:
-		centsStr = "0" + centsStr
-	}
-	rest := centsStr[:len(centsStr)-2]
+
+	centsStr := fmt.Sprintf("%03d", cents)
 	// Groups the cents in groups of three digits
 	var parts []string
 	for len(rest) > 3 {
