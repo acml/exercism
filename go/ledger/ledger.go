@@ -188,8 +188,6 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		strings.Repeat(" ", 25-len(lang.description)) +
 		" | " + lang.change + "\n"
 
-	for i := 0; i < len(entriesCopy); i++ {
-		s += ss[i]
-	}
+	s += strings.Join(ss, "");
 	return s, nil
 }
