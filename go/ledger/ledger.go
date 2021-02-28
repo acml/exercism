@@ -60,6 +60,55 @@ func formatDate(input, locale string) (string, error) {
 	return "", errors.New("date conversion failed")
 }
 
+func formatChange(cents int, number numbers, currencySymbol rune) string {
+	negative := false
+	if cents < 0 {
+		cents = cents * -1
+		negative = true
+	}
+	var a string
+	if negative {
+		a += number.negativeStart
+	}
+	a += string(currencySymbol)
+	a += number.symbolSeparator
+	centsStr := strconv.Itoa(cents)
+	switch len(centsStr) {
+	case 1:
+		centsStr = "00" + centsStr
+	case 2:
+		centsStr = "0" + centsStr
+	}
+	rest := centsStr[:len(centsStr)-2]
+	// Groups the cents in groups of three digits
+	var parts []string
+	for len(rest) > 3 {
+		parts = append(parts, rest[len(rest)-3:])
+		rest = rest[:len(rest)-3]
+	}
+	// After groups of three digits last one is the rest
+	if len(rest) > 0 {
+		parts = append(parts, rest)
+	}
+	// Print the whole part with digit grouping seperator
+	for i := len(parts) - 1; i >= 0; i-- {
+		a += parts[i] + number.digitGrouping
+	}
+	// delete the last digit group seperator
+	a = a[:len(a)-1]
+	// append decimal seperator
+	a += number.decimalSeperator
+	// append decimal amount
+	a += centsStr[len(centsStr)-2:]
+	// append negative end symbol
+	if negative {
+		a += number.negativeEnd
+	} else {
+		a += " "
+	}
+	return a
+}
+
 // FormatLedger outputs a beautifully formatted ledger
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
 	if len(entries) == 0 {
@@ -110,52 +159,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 					e error
 				}{e: ok}
 			}
-			negative := false
-			cents := entry.Change
-			if cents < 0 {
-				cents = cents * -1
-				negative = true
-			}
-			var a string
-			if negative {
-				a += lang.number.negativeStart
-			}
-			a += string(currencySymbol)
-			a += lang.number.symbolSeparator
-			centsStr := strconv.Itoa(cents)
-			switch len(centsStr) {
-			case 1:
-				centsStr = "00" + centsStr
-			case 2:
-				centsStr = "0" + centsStr
-			}
-			rest := centsStr[:len(centsStr)-2]
-			// Groups the cents in groups of three digits
-			var parts []string
-			for len(rest) > 3 {
-				parts = append(parts, rest[len(rest)-3:])
-				rest = rest[:len(rest)-3]
-			}
-			// After groups of three digits last one is the rest
-			if len(rest) > 0 {
-				parts = append(parts, rest)
-			}
-			// Print the whole part with digit grouping seperator
-			for i := len(parts) - 1; i >= 0; i-- {
-				a += parts[i] + lang.number.digitGrouping
-			}
-			// delete the last digit group seperator
-			a = a[:len(a)-1]
-			// append decimal seperator
-			a += lang.number.decimalSeperator
-			// append decimal amount
-			a += centsStr[len(centsStr)-2:]
-			// append negative end symbol
-			if negative {
-				a += lang.number.negativeEnd
-			} else {
-				a += " "
-			}
+			a := formatChange(entry.Change, lang.number, currencySymbol)
 
 			co <- struct {
 				i int
