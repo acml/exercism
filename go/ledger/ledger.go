@@ -32,6 +32,7 @@ var symbol = map[string]rune {
 	"USD": '$',
 }
 
+// Entry is a typical ledger input entry
 type Entry struct {
 	Date        string // "Y-m-d"
 	Description string
@@ -40,12 +41,13 @@ type Entry struct {
 
 func formatDate(input, locale string) (string, error) {
 	if len(input) != 10 {
-		return "", errors.New("")
+		return "", errors.New("invalid input date length")
 	}
 
+	// input date format is "Y-m-d"
 	date := strings.SplitN(input, "-", 3)
 	if len(date) != 3 || len(date[0]) != 4 || len(date[1]) > 2 || len(date[2]) > 2 {
-		return "", errors.New("")
+		return "", errors.New("date string splitting failed")
 	}
 
 	switch locale {
@@ -55,9 +57,10 @@ func formatDate(input, locale string) (string, error) {
 		return date[1] + "/" + date[2] + "/" + date[0], nil
 	}
 
-	return "", errors.New("")
+	return "", errors.New("date conversion failed")
 }
 
+// FormatLedger outputs a beautifully formatted ledger
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
 	if len(entries) == 0 {
 		if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
@@ -68,12 +71,12 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	var lang literals
 	var ok bool
 	if lang, ok = langs[locale]; !ok {
-		return "", errors.New("")
+		return "", errors.New("language mapping failed")
 	}
 
 	var currencySymbol rune
 	if currencySymbol, ok = symbol[currency]; !ok {
-		return "", errors.New("")
+		return "", errors.New("currency symbol mapping failed")
 	}
 
 	var entriesCopy []Entry
