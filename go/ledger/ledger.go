@@ -17,20 +17,15 @@ type (
 		Change      int // in cents
 	}
 
-	numbers struct {
-		decimalSeperator string
-		digitGrouping    string
-		negativeStart    string
-		negativeEnd      string
-		symbolSeparator  string
-	}
-
-	literals struct {
+	lang struct {
 		date        string
 		description string
 		change      string
 		dateFormat  string
-		number      *numbers
+		decimalSeperator string
+		digitGrouping    string
+		positiveFormat string
+		negativeFormat string
 	}
 )
 
@@ -41,9 +36,9 @@ const (
 )
 
 var (
-	langs = map[string]*literals{
-		"en-US": {"Date", "Description", "Change", "01/02/2006", &numbers{".", ",", "(", ")", ""}},
-		"nl-NL": {"Datum", "Omschrijving", "Verandering", "02-01-2006", &numbers{",", ".", "", "-", " "}},
+	langs = map[string]*lang{
+		"en-US": {"Date", "Description", "Change", "01/02/2006", ".", ",", " %c%s ", "(%c%s)" },
+		"nl-NL": {"Datum", "Omschrijving", "Verandering", "02-01-2006", ",", ".", "%c %s ", "%c %s-" },
 	}
 
 	symbols = map[string]rune{
@@ -52,37 +47,26 @@ var (
 	}
 )
 
-func formatChange(cents int, number *numbers, symbol rune) string {
-	a, negative := "", false
+func formatChange(cents int, l *lang, symbol rune) string {
+	format := l.positiveFormat
 	if cents < 0 {
 		cents = -cents
-		negative = true
-		a += number.negativeStart
+		format = l.negativeFormat
 	}
 
 	wholeStr := strconv.Itoa(cents/100)
 	for i := len(wholeStr) - 3; i > 0; i -= 3 {
-		wholeStr = wholeStr[:i] + number.digitGrouping + wholeStr[i:]
+		wholeStr = wholeStr[:i] + l.digitGrouping + wholeStr[i:]
 	}
 
-	a += string(symbol) + number.symbolSeparator +
-		wholeStr + number.decimalSeperator +
-		fmt.Sprintf("%02d", cents%100)
-
-	if negative {
-		a += number.negativeEnd
-	} else {
-		a += " "
-	}
-
-	return a
+	return fmt.Sprintf(format, symbol, wholeStr + l.decimalSeperator + fmt.Sprintf("%02d", cents%100))
 }
 
 // FormatLedger outputs a beautifully formatted ledger
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
-	var lang *literals
+	var l *lang
 	var ok bool
-	if lang, ok = langs[locale]; !ok {
+	if l, ok = langs[locale]; !ok {
 		return "", errors.New("language mapping failed")
 	}
 
@@ -92,8 +76,8 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	}
 
 	if len(entries) == 0 {
-		l := langs["en-US"]
-		return fmt.Sprintf(headerFormat, l.date, l.description, l.change), nil
+		ln := langs["en-US"]
+		return fmt.Sprintf(headerFormat, ln.date, ln.description, ln.change), nil
 	}
 
 	entriesCopy := make([]Entry, len(entries))
@@ -133,7 +117,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				e error
 			}{
 				i: i,
-				s: fmt.Sprintf(entryFormat, t.Format(lang.dateFormat), desc, formatChange(entry.Change, lang.number, symbol)),
+				s: fmt.Sprintf(entryFormat, t.Format(l.dateFormat), desc, formatChange(entry.Change, l, symbol)),
 			}
 		}(i, et)
 	}
@@ -146,6 +130,6 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		ss[v.i] = v.s
 	}
 
-	return fmt.Sprintf(headerFormat, lang.date, lang.description, lang.change) +
+	return fmt.Sprintf(headerFormat, l.date, l.description, l.change) +
 		strings.Join(ss, ""), nil
 }
