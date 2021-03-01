@@ -9,25 +9,25 @@ import (
 
 type numbers struct {
 	decimalSeperator string
-	digitGrouping string
-	negativeStart string
-	negativeEnd   string
-	symbolSeparator string
+	digitGrouping    string
+	negativeStart    string
+	negativeEnd      string
+	symbolSeparator  string
 }
 
 type literals struct {
-	date string
+	date        string
 	description string
-	change string
-	number numbers
+	change      string
+	number      *numbers
 }
 
-var langs = map[string]literals{
-	"en-US": { "Date",  "Description",  "Change",      numbers{ ".", ",", "(", ")", "" }, },
-	"nl-NL": { "Datum", "Omschrijving", "Verandering", numbers{ ",", ".", "",  "-", " "}, },
+var langs = map[string]*literals{
+	"en-US": {"Date", "Description", "Change", &numbers{".", ",", "(", ")", ""}},
+	"nl-NL": {"Datum", "Omschrijving", "Verandering", &numbers{",", ".", "", "-", " "}},
 }
 
-var symbol = map[string]rune {
+var symbols = map[string]rune{
 	"EUR": '€',
 	"USD": '$',
 }
@@ -39,18 +39,15 @@ type Entry struct {
 	Change      int // in cents
 }
 
-func formatDate(input, locale string) (string, error) {
-	if len(input) != 10 {
-		return "", errors.New("invalid input date length")
-	}
+func formatDate(input, locale *string) (string, error) {
 
 	// input date format is "Y-m-d"
-	date := strings.SplitN(input, "-", 3)
-	if len(date) != 3 || len(date[0]) != 4 || len(date[1]) > 2 || len(date[2]) > 2 {
+	date := strings.SplitN(*input, "-", 3)
+	if len(date) != 3 || len(date[0]) != 4 || len(date[1]) != 2 || len(date[2]) != 2 {
 		return "", errors.New("date string splitting failed")
 	}
 
-	switch locale {
+	switch *locale {
 	case "nl-NL":
 		return date[2] + "-" + date[1] + "-" + date[0], nil
 	case "en-US":
@@ -60,18 +57,13 @@ func formatDate(input, locale string) (string, error) {
 	return "", errors.New("date conversion failed")
 }
 
-func formatChange(cents int, number numbers, currencySymbol rune) string {
-	negative := false
+func formatChange(cents int, number *numbers, symbol rune) string {
+	a, negative := "", false
 	if cents < 0 {
 		cents = -cents
 		negative = true
-	}
-	var a string
-	if negative {
 		a += number.negativeStart
 	}
-	a += string(currencySymbol)
-	a += number.symbolSeparator
 
 	wholeStr := fmt.Sprintf("%d", cents/100)
 	// Groups the cents in groups of three digits
@@ -84,40 +76,40 @@ func formatChange(cents int, number numbers, currencySymbol rune) string {
 		wholeParts = append(wholeParts, wholeStr[:3])
 		wholeStr = wholeStr[3:]
 	}
-	a += strings.Join(wholeParts, number.digitGrouping)
-	// append decimal seperator
-	a += number.decimalSeperator + fmt.Sprintf("%02d", cents%100)
-	// append negative end symbol
+
+	a += string(symbol) + number.symbolSeparator +
+		strings.Join(wholeParts, number.digitGrouping) +
+		number.decimalSeperator +
+		fmt.Sprintf("%02d", cents%100)
+
 	if negative {
 		a += number.negativeEnd
 	} else {
 		a += " "
 	}
+
 	return a
 }
 
 // FormatLedger outputs a beautifully formatted ledger
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
-	if len(entries) == 0 {
-		if _, err := FormatLedger(currency, "en-US", []Entry{{Date: "2014-01-01", Description: "", Change: 0}}); err != nil {
-			return "", err
-		}
-	}
-
-	var lang literals
+	var lang *literals
 	var ok bool
 	if lang, ok = langs[locale]; !ok {
 		return "", errors.New("language mapping failed")
 	}
 
-	var currencySymbol rune
-	if currencySymbol, ok = symbol[currency]; !ok {
+	var symbol rune
+	if symbol, ok = symbols[currency]; !ok {
 		return "", errors.New("currency symbol mapping failed")
+	}
+
+	if len(entries) == 0 {
+		return "Date       | Description               | Change\n", nil
 	}
 
 	var entriesCopy []Entry
 	entriesCopy = append(entriesCopy, entries...)
-	// sort entries by date, description and change amount
 	sort.Slice(entriesCopy, func(i, j int) bool {
 		return entriesCopy[i].Date < entriesCopy[j].Date ||
 			entriesCopy[i].Description < entriesCopy[j].Description ||
@@ -129,31 +121,36 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		i int
 		s string
 		e error
-	})
+	}, 10)
 	for i, et := range entriesCopy {
 		go func(i int, entry Entry) {
-			de := entry.Description
-			if len(de) > 25 {
-				de = de[:22] + "..."
-			} else {
-				de = de + strings.Repeat(" ", 25-len(de))
-			}
-			d, ok := formatDate(entry.Date, locale)
+			date, ok := formatDate(&entry.Date, &locale)
 			if ok != nil {
 				co <- struct {
 					i int
 					s string
 					e error
 				}{e: ok}
+				return
 			}
-			a := formatChange(entry.Change, lang.number, currencySymbol)
+
+			desc := entry.Description
+			if len(desc) > 25 {
+				desc = desc[:22] + "..."
+			}
+
+			amount := formatChange(entry.Change, lang.number, symbol)
 
 			co <- struct {
 				i int
 				s string
 				e error
-			}{i: i, s: d + strings.Repeat(" ", 10-len(d)) + " | " + de + " | " +
-				strings.Repeat(" ", 13-len([]rune(a))) + a + "\n"}
+			}{
+				i: i,
+				s: date + strings.Repeat(" ", 10-len(date)) + " | " +
+					desc + strings.Repeat(" ", 25-len(desc)) + " | " +
+					strings.Repeat(" ", 13-len([]rune(amount))) + amount + "\n",
+			}
 		}(i, et)
 	}
 	ss := make([]string, len(entriesCopy))
@@ -165,13 +162,8 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		ss[v.i] = v.s
 	}
 
-	s := lang.date +
-		strings.Repeat(" ", 10-len(lang.date)) +
-		" | " +
-		lang.description +
-		strings.Repeat(" ", 25-len(lang.description)) +
-		" | " + lang.change + "\n"
-
-	s += strings.Join(ss, "");
-	return s, nil
+	return lang.date + strings.Repeat(" ", 10-len(lang.date)) + " | " +
+		lang.description + strings.Repeat(" ", 25-len(lang.description)) + " | " +
+		lang.change + "\n" +
+		strings.Join(ss, ""), nil
 }
