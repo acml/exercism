@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 	"strings"
+	"time"
 )
 
 type numbers struct {
@@ -19,12 +20,13 @@ type literals struct {
 	date        string
 	description string
 	change      string
+	dateFormat  string
 	number      *numbers
 }
 
 var langs = map[string]*literals{
-	"en-US": {"Date", "Description", "Change", &numbers{".", ",", "(", ")", ""}},
-	"nl-NL": {"Datum", "Omschrijving", "Verandering", &numbers{",", ".", "", "-", " "}},
+	"en-US": {"Date", "Description", "Change", "01/02/2006", &numbers{".", ",", "(", ")", ""}},
+	"nl-NL": {"Datum", "Omschrijving", "Verandering", "02-01-2006", &numbers{",", ".", "", "-", " "}},
 }
 
 var symbols = map[string]rune{
@@ -37,24 +39,6 @@ type Entry struct {
 	Date        string // "Y-m-d"
 	Description string
 	Change      int // in cents
-}
-
-func formatDate(input, locale *string) (string, error) {
-
-	// input date format is "Y-m-d"
-	date := strings.SplitN(*input, "-", 3)
-	if len(date) != 3 || len(date[0]) != 4 || len(date[1]) != 2 || len(date[2]) != 2 {
-		return "", errors.New("date string splitting failed")
-	}
-
-	switch *locale {
-	case "nl-NL":
-		return date[2] + "-" + date[1] + "-" + date[0], nil
-	case "en-US":
-		return date[1] + "/" + date[2] + "/" + date[0], nil
-	}
-
-	return "", errors.New("date conversion failed")
 }
 
 func formatChange(cents int, number *numbers, symbol rune) string {
@@ -116,15 +100,16 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	}, 10)
 	for i, et := range entriesCopy {
 		go func(i int, entry Entry) {
-			date, ok := formatDate(&entry.Date, &locale)
-			if ok != nil {
+			t, err := time.Parse("2006-01-02", entry.Date)
+			if err != nil {
 				co <- struct {
 					i int
 					s string
 					e error
-				}{e: ok}
+				}{e: err}
 				return
 			}
+			date := t.Format(lang.dateFormat)
 
 			desc := entry.Description
 			if len(desc) > 25 {
