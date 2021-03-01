@@ -18,27 +18,27 @@ type (
 	}
 
 	lang struct {
-		date        string
-		description string
-		change      string
-		dateFormat  string
+		date             string
+		description      string
+		change           string
+		dateFormat       string
 		decimalSeperator string
 		digitGrouping    string
-		positiveFormat string
-		negativeFormat string
+		positiveFormat   string
+		negativeFormat   string
 	}
 )
 
 const (
-	dateLayout = "2006-01-02"
+	dateLayout   = "2006-01-02"
 	headerFormat = "%-10s | %-25s | %s\n"
-	entryFormat = "%-10s | %-25s | %13s\n"
+	entryFormat  = "%-10s | %-25s | %13s\n"
 )
 
 var (
 	langs = map[string]*lang{
-		"en-US": {"Date", "Description", "Change", "01/02/2006", ".", ",", " %c%s ", "(%c%s)" },
-		"nl-NL": {"Datum", "Omschrijving", "Verandering", "02-01-2006", ",", ".", "%c %s ", "%c %s-" },
+		"en-US": {"Date", "Description", "Change", "01/02/2006", ".", ",", " %c%s ", "(%c%s)"},
+		"nl-NL": {"Datum", "Omschrijving", "Verandering", "02-01-2006", ",", ".", "%c %s ", "%c %s-"},
 	}
 
 	symbols = map[string]rune{
@@ -54,12 +54,12 @@ func formatChange(cents int, l *lang, symbol rune) string {
 		format = l.negativeFormat
 	}
 
-	wholeStr := strconv.Itoa(cents/100)
+	wholeStr := strconv.Itoa(cents / 100)
 	for i := len(wholeStr) - 3; i > 0; i -= 3 {
 		wholeStr = wholeStr[:i] + l.digitGrouping + wholeStr[i:]
 	}
 
-	return fmt.Sprintf(format, symbol, wholeStr + l.decimalSeperator + fmt.Sprintf("%02d", cents%100))
+	return fmt.Sprintf(format, symbol, wholeStr+l.decimalSeperator+fmt.Sprintf("%02d", cents%100))
 }
 
 // FormatLedger outputs a beautifully formatted ledger
