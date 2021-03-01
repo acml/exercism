@@ -66,20 +66,12 @@ func formatChange(cents int, number *numbers, symbol rune) string {
 	}
 
 	wholeStr := fmt.Sprintf("%d", cents/100)
-	// Groups the cents in groups of three digits
-	var wholeParts []string
-	if lenInit := len(wholeStr) % 3; lenInit > 0 {
-		wholeParts = append(wholeParts, wholeStr[:lenInit])
-		wholeStr = wholeStr[lenInit:]
-	}
-	for len(wholeStr) >= 3 {
-		wholeParts = append(wholeParts, wholeStr[:3])
-		wholeStr = wholeStr[3:]
+	for i := len(wholeStr) - 3; i > 0; i -= 3 {
+		wholeStr = wholeStr[:i] + number.digitGrouping + wholeStr[i:]
 	}
 
 	a += string(symbol) + number.symbolSeparator +
-		strings.Join(wholeParts, number.digitGrouping) +
-		number.decimalSeperator +
+		wholeStr + number.decimalSeperator +
 		fmt.Sprintf("%02d", cents%100)
 
 	if negative {
