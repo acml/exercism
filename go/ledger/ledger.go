@@ -74,22 +74,18 @@ func formatChange(cents int, number numbers, currencySymbol rune) string {
 	a += number.symbolSeparator
 
 	centsStr := fmt.Sprintf("%03d", cents)
+	wholeStr := centsStr[:len(centsStr)-2]
 	// Groups the cents in groups of three digits
-	var parts []string
-	for len(rest) > 3 {
-		parts = append(parts, rest[len(rest)-3:])
-		rest = rest[:len(rest)-3]
+	var wholeParts []string
+	if lenInit := len(wholeStr) % 3; lenInit > 0 {
+		wholeParts = append(wholeParts, wholeStr[:lenInit])
+		wholeStr = wholeStr[lenInit:]
 	}
-	// After groups of three digits last one is the rest
-	if len(rest) > 0 {
-		parts = append(parts, rest)
+	for len(wholeStr) >= 3 {
+		wholeParts = append(wholeParts, wholeStr[:3])
+		wholeStr = wholeStr[3:]
 	}
-	// Print the whole part with digit grouping seperator
-	for i := len(parts) - 1; i >= 0; i-- {
-		a += parts[i] + number.digitGrouping
-	}
-	// delete the last digit group seperator
-	a = a[:len(a)-1]
+	a += strings.Join(wholeParts, number.digitGrouping)
 	// append decimal seperator
 	a += number.decimalSeperator
 	// append decimal amount
