@@ -76,8 +76,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 	}
 
 	if len(entries) == 0 {
-		ln := langs["en-US"]
-		return fmt.Sprintf(headerFormat, ln.date, ln.description, ln.change), nil
+		return fmt.Sprintf(headerFormat, l.date, l.description, l.change), nil
 	}
 
 	entriesCopy := make([]Entry, len(entries))
