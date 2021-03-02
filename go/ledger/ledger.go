@@ -74,9 +74,12 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		return "", errors.New("currency symbol mapping failed")
 	}
 
-	header := fmt.Sprintf(headerFormat, l.date, l.description, l.change)
+	var sb strings.Builder
+	sb.Grow((len(entries) + 1) * 60)
+
+	fmt.Fprintf(&sb, headerFormat, l.date, l.description, l.change)
 	if len(entries) == 0 {
-		return header, nil
+		return sb.String(), nil
 	}
 
 	// Sort index instead of the real entries slice
@@ -131,6 +134,9 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		}
 		ss[idx[v.i]] = v.s
 	}
+	for i := range ss {
+		sb.WriteString(ss[i])
+	}
 
-	return header + strings.Join(ss, ""), nil
+	return sb.String(), nil
 }
