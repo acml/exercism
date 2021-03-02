@@ -64,11 +64,13 @@ func formatChange(cents int, l *lang, symbol rune) string {
 
 // FormatLedger outputs a beautifully formatted ledger
 func FormatLedger(currency string, locale string, entries []Entry) (string, error) {
-	l, ok := langs[locale]; if !ok {
+	l, ok := langs[locale]
+	if !ok {
 		return "", errors.New("language mapping failed")
 	}
 
-	symbol, ok := symbols[currency]; if !ok {
+	symbol, ok := symbols[currency]
+	if !ok {
 		return "", errors.New("currency symbol mapping failed")
 	}
 
