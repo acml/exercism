@@ -79,12 +79,15 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		return header, nil
 	}
 
-	entriesCopy := make([]Entry, len(entries))
-	copy(entriesCopy, entries)
-	sort.Slice(entriesCopy, func(i, j int) bool {
-		return entriesCopy[i].Date < entriesCopy[j].Date ||
-			entriesCopy[i].Description < entriesCopy[j].Description ||
-			entriesCopy[i].Change < entriesCopy[j].Change
+	// Sort index instead of the real entries slice
+	idx := make([]int, len(entries))
+	for i := range idx {
+		idx[i] = i
+	}
+	sort.Slice(idx, func(i, j int) bool {
+		return entries[i].Date < entries[j].Date ||
+			entries[i].Description < entries[j].Description ||
+			entries[i].Change < entries[j].Change
 	})
 
 	// Parallelism, always a great idea
@@ -93,7 +96,7 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		s string
 		e error
 	}, 10)
-	for i, et := range entriesCopy {
+	for i := range entries {
 		go func(i int, entry Entry) {
 			t, err := time.Parse(dateLayout, entry.Date)
 			if err != nil {
@@ -118,15 +121,15 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 				i: i,
 				s: fmt.Sprintf(entryFormat, t.Format(l.dateFormat), desc, formatChange(entry.Change, l, symbol)),
 			}
-		}(i, et)
+		}(idx[i], entries[idx[i]])
 	}
-	ss := make([]string, len(entriesCopy))
-	for range entriesCopy {
+	ss := make([]string, len(entries))
+	for range entries {
 		v := <-co
 		if v.e != nil {
 			return "", v.e
 		}
-		ss[v.i] = v.s
+		ss[idx[v.i]] = v.s
 	}
 
 	return header + strings.Join(ss, ""), nil
