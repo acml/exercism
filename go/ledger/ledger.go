@@ -93,49 +93,18 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 			entries[i].Change < entries[j].Change
 	})
 
-	// Parallelism, always a great idea
-	co := make(chan struct {
-		i int
-		s string
-		e error
-	}, 10)
 	for i := range entries {
-		go func(i int, entry Entry) {
-			t, err := time.Parse(dateLayout, entry.Date)
-			if err != nil {
-				co <- struct {
-					i int
-					s string
-					e error
-				}{e: err}
-				return
-			}
-
-			desc := entry.Description
-			if len(desc) > 25 {
-				desc = desc[:22] + "..."
-			}
-
-			co <- struct {
-				i int
-				s string
-				e error
-			}{
-				i: i,
-				s: fmt.Sprintf(entryFormat, t.Format(l.dateFormat), desc, formatChange(entry.Change, l, symbol)),
-			}
-		}(idx[i], entries[idx[i]])
-	}
-	ss := make([]string, len(entries))
-	for range entries {
-		v := <-co
-		if v.e != nil {
-			return "", v.e
+		t, err := time.Parse(dateLayout, entries[idx[i]].Date)
+		if err != nil {
+			return "", err
 		}
-		ss[idx[v.i]] = v.s
-	}
-	for i := range ss {
-		sb.WriteString(ss[i])
+
+		desc := entries[idx[i]].Description
+		if len(desc) > 25 {
+			desc = desc[:22] + "..."
+		}
+
+		fmt.Fprintf(&sb, entryFormat, t.Format(l.dateFormat), desc, formatChange(entries[idx[i]].Change, l, symbol))
 	}
 
 	return sb.String(), nil
