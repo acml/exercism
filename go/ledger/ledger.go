@@ -75,8 +75,9 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		return "", errors.New("currency symbol mapping failed")
 	}
 
+	header := fmt.Sprintf(headerFormat, l.date, l.description, l.change)
 	if len(entries) == 0 {
-		return fmt.Sprintf(headerFormat, l.date, l.description, l.change), nil
+		return header, nil
 	}
 
 	entriesCopy := make([]Entry, len(entries))
@@ -129,6 +130,5 @@ func FormatLedger(currency string, locale string, entries []Entry) (string, erro
 		ss[v.i] = v.s
 	}
 
-	return fmt.Sprintf(headerFormat, l.date, l.description, l.change) +
-		strings.Join(ss, ""), nil
+	return header + strings.Join(ss, ""), nil
 }
