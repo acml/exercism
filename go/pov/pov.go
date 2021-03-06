@@ -46,18 +46,10 @@ func (g *Graph) ArcList() []string {
 
 // ChangeRoot changes root of a tree.
 func (g *Graph) ChangeRoot(oldRoot, newRoot string) *Graph {
-	g.rootTree(newRoot)
-	return g
-}
-
-// g is the graph/tree represented as an adjacency list with undirected edges.
-// If there's an edge between (u, v) there's also and edge between (v, u).
-// rootLabel is the id of the node to root the tree from.
-func (g *Graph) rootTree(rootLabel string) {
-	root := &TreeNode{label: rootLabel}
-	tree := g.buildTree(root, nil)
+	tree := g.buildTree(&TreeNode{label: newRoot}, nil)
 	g.arcs = []arcst{}
 	tree.buildArcList(g)
+	return g
 }
 
 func (t *TreeNode) buildArcList(g *Graph) {
