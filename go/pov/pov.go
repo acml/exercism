@@ -74,7 +74,7 @@ func (g *Graph) buildTree(node, parent *TreeNode) *TreeNode {
 		if parent != nil && childLabel == parent.label {
 			continue
 		}
-		child := &TreeNode{ label: childLabel }
+		child := &TreeNode{label: childLabel}
 		node.children = append(node.children, child)
 		g.buildTree(child, node)
 	}
