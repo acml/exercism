@@ -1,6 +1,7 @@
 package palindrome
 
 import "errors"
+import "math"
 
 // Product stores palindromes with factors.
 type Product struct {
@@ -16,37 +17,29 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 		return pmin, pmax, errors.New("fmin > fmax")
 	}
 
-	products := map[int]struct{}{}
+	pmin.Product = math.MaxUint32
+	pmax.Product = 0
 	for i := fmin; i <= fmax; i++ {
-		for j := fmin; j <= i; j++ {
-			product := i * j
-			if !isPalindrome(product) {
-				continue
-			}
-
-			if _, ok := products[product]; !ok {
-				products[product] = struct{}{}
-			}
-		}
-	}
-
-	for product := range products {
-		if pmin.Product == 0 || product < pmin.Product {
-			pmin = Product{
-				Product:        product,
-				Factorizations: factors(product, fmin, fmax),
-			}
-		}
-
-		if pmax.Product == 0 || product > pmax.Product {
-			pmax = Product{
-				Product:        product,
-				Factorizations: factors(product, fmin, fmax),
+		for j := i; j <= fmax; j++ {
+			p := i * j
+			if (p <= pmin.Product || p >= pmax.Product) && isPalindrome(p) {
+				switch {
+				case p < pmin.Product:
+					pmin.Product = p
+					pmin.Factorizations = append(pmin.Factorizations[:0], [2]int{i, j})
+				case p == pmin.Product:
+					pmin.Factorizations = append(pmin.Factorizations, [2]int{i, j})
+				case p > pmax.Product:
+					pmax.Product = p
+					pmax.Factorizations = append(pmax.Factorizations[:0], [2]int{i, j})
+				case p == pmax.Product:
+					pmax.Factorizations = append(pmax.Factorizations, [2]int{i, j})
+				}
 			}
 		}
 	}
 
-	if pmin.Product == 0 && pmax.Product == 0 {
+	if pmin.Product == math.MaxUint32 {
 		return pmin, pmax, errors.New("no palindromes")
 	}
 
@@ -59,15 +52,4 @@ func isPalindrome(number int) bool {
 		r = 10*r + n%10
 	}
 	return number == r
-}
-
-func factors(n, min, max int) (factors [][2]int) {
-	for i := min; i <= max; i++ {
-		for j := max; j >= i; j-- {
-			if n > 1 && i*j == n {
-				factors = append(factors, [2]int{i, j})
-			}
-		}
-	}
-	return factors
 }
