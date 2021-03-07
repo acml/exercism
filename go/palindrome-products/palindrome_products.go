@@ -26,18 +26,19 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 	for i := fmin; i <= fmax; i++ {
 		for j := i; j <= fmax; j++ {
 			p := i * j
-			if (p <= pmin.Product || p >= pmax.Product) && isPalindrome(p) {
+			switch {
+			case p == pmin.Product:
+				pmin.Factorizations = append(pmin.Factorizations, [2]int{i, j})
+			case p == pmax.Product:
+				pmax.Factorizations = append(pmax.Factorizations, [2]int{i, j})
+			case (p < pmin.Product || p > pmax.Product) && isPalindrome(p):
 				switch {
 				case p < pmin.Product:
 					pmin.Product = p
 					pmin.Factorizations = append(pmin.Factorizations[:0], [2]int{i, j})
-				case p == pmin.Product:
-					pmin.Factorizations = append(pmin.Factorizations, [2]int{i, j})
 				case p > pmax.Product:
 					pmax.Product = p
 					pmax.Factorizations = append(pmax.Factorizations[:0], [2]int{i, j})
-				case p == pmax.Product:
-					pmax.Factorizations = append(pmax.Factorizations, [2]int{i, j})
 				}
 			}
 		}
