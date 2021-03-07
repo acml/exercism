@@ -2,6 +2,11 @@ package palindrome
 
 import "errors"
 
+const (
+	maxInt = int(^uint(0) >> 1)
+	minInt = -int(^uint(0) >> 1)
+)
+
 // Product stores palindromes with factors.
 type Product struct {
 	Product        int      // palindromic, of course
@@ -16,8 +21,8 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 		return pmin, pmax, errors.New("fmin > fmax")
 	}
 
-	pmin.Product = int(^uint(0) >> 1)
-	pmax.Product = -int(^uint(0) >> 1)
+	pmin.Product = maxInt
+	pmax.Product = minInt
 	for i := fmin; i <= fmax; i++ {
 		for j := i; j <= fmax; j++ {
 			p := i * j
@@ -38,7 +43,7 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 		}
 	}
 
-	if pmin.Product == int(^uint(0) >> 1) {
+	if pmin.Product == maxInt {
 		return pmin, pmax, errors.New("no palindromes")
 	}
 
