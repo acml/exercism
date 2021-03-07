@@ -4,7 +4,7 @@ import "errors"
 
 const (
 	maxInt = int(^uint(0) >> 1)
-	minInt = -int(^uint(0) >> 1)
+	minInt = -maxInt - 1
 )
 
 // Product stores palindromes with factors.
