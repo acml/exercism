@@ -64,7 +64,7 @@ func reverseNumber(number int) (reverseNumber int) {
 func factors(n, min, max int) (factors [][2]int) {
 	for i := min; i <= max; i++ {
 		for j := max; j >= i; j-- {
-			if i*j == n && n > 1 {
+			if n > 1 && i*j == n {
 				factors = append(factors, [2]int{i, j})
 			}
 		}
