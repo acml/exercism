@@ -1,9 +1,6 @@
 package palindrome
 
-import (
-	"errors"
-	"math"
-)
+import "errors"
 
 // Product stores palindromes with factors.
 type Product struct {
@@ -19,8 +16,8 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 		return pmin, pmax, errors.New("fmin > fmax")
 	}
 
-	pmin.Product = math.MaxUint32
-	pmax.Product = 0
+	pmin.Product = int(^uint(0) >> 1)
+	pmax.Product = -int(^uint(0) >> 1)
 	for i := fmin; i <= fmax; i++ {
 		for j := i; j <= fmax; j++ {
 			p := i * j
@@ -41,7 +38,7 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 		}
 	}
 
-	if pmin.Product == math.MaxUint32 {
+	if pmin.Product == int(^uint(0) >> 1) {
 		return pmin, pmax, errors.New("no palindromes")
 	}
 
