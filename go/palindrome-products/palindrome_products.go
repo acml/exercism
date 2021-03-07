@@ -20,7 +20,7 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 	for i := fmin; i <= fmax; i++ {
 		for j := fmin; j <= i; j++ {
 			product := i * j
-			if product != reverseNumber(product) {
+			if !isPalindrome(product) {
 				continue
 			}
 
@@ -53,12 +53,12 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 	return pmin, pmax, nil
 }
 
-func reverseNumber(number int) (reverseNumber int) {
-	for number > 0 {
-		reverseNumber = 10*reverseNumber + number%10
-		number /= 10
+func isPalindrome(number int) bool {
+	r := 0
+	for n := number; n > 0; n/= 10 {
+		r = 10*r + n%10
 	}
-	return reverseNumber
+	return number == r
 }
 
 func factors(n, min, max int) (factors [][2]int) {
