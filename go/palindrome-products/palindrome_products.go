@@ -1,7 +1,9 @@
 package palindrome
 
-import "errors"
-import "math"
+import (
+	"errors"
+	"math"
+)
 
 // Product stores palindromes with factors.
 type Product struct {
