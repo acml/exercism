@@ -55,7 +55,7 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 
 func isPalindrome(number int) bool {
 	r := 0
-	for n := number; n > 0; n/= 10 {
+	for n := number; n > 0; n /= 10 {
 		r = 10*r + n%10
 	}
 	return number == r
