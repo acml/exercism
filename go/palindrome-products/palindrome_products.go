@@ -26,6 +26,9 @@ func Products(fmin, fmax int) (pmin, pmax Product, err error) {
 	for i := fmin; i <= fmax; i++ {
 		for j := i; j <= fmax; j++ {
 			p := i * j
+			if pmin.Product < p && p < pmax.Product {
+				break
+			}
 			switch {
 			case p == pmin.Product:
 				pmin.Factorizations = append(pmin.Factorizations, [2]int{i, j})
