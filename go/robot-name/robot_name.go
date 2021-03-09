@@ -2,9 +2,8 @@ package robotname
 
 import (
 	"errors"
+	"fmt"
 	"math/rand"
-	"strings"
-	"sync"
 	"time"
 )
 
@@ -15,51 +14,41 @@ type Robot struct {
 
 const maxRobotNames = 26 * 26 * 10 * 10 * 10
 
-var names = map[int]struct{}{}
-var availableNames = maxRobotNames
+var (
+	random         = rand.New(rand.NewSource(time.Now().UnixNano()))
+	names          = map[string]struct{}{}
+	availableNames = maxRobotNames
+)
 
 // Name generates a random name for each robot in the format of two uppercase
 // letters followed by three digits, such as RX837 or BC811.
-func (r *Robot) Name() (string, error) {
-	if r.name == "" {
-		if availableNames == 0 {
-			return "", errors.New("used all names")
-		}
-		r.name = randRobotName()
+func (r *Robot) Name() (name string, err error) {
+	if r.name != "" {
+		return r.name, nil
 	}
-	return r.name, nil
+
+	if availableNames == 0 {
+		return "", errors.New("used all names")
+	}
+
+	for {
+		r1 := random.Intn(26) + 'A'
+		r2 := random.Intn(26) + 'A'
+		num := random.Intn(1000)
+		r.name = fmt.Sprintf("%c%c%03d", r1, r2, num)
+		if _, ok := names[r.name]; ok {
+			continue
+		}
+		break
+	}
+	names[r.name] = struct{}{}
+	availableNames--
+
+	return r.name, err
 }
 
 // Reset wipes the robot name and generates a new one.
 func (r *Robot) Reset() (string, error) {
 	r.name = ""
 	return r.Name()
-}
-
-func randRobotName() string {
-
-	once := sync.Once{}
-	once.Do(func() { rand.Seed(time.Now().UnixNano()) })
-
-	var idx int
-	for {
-		idx = rand.Intn(maxRobotNames)
-		if _, ok := names[idx]; ok {
-			continue
-		}
-		break
-	}
-
-	names[idx] = struct{}{}
-	availableNames--
-
-	sb := strings.Builder{}
-	sb.Grow(5)
-
-	sb.WriteRune('A' + rune(idx/(26*1000)))
-	sb.WriteRune('A' + rune((idx%(26*1000))/1000))
-	sb.WriteRune('0' + rune((idx%1000)/100))
-	sb.WriteRune('0' + rune(((idx%1000)%100)/10))
-	sb.WriteRune('0' + rune((idx%1000)%10))
-	return sb.String()
 }
