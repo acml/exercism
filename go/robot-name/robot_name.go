@@ -1,7 +1,6 @@
 package robotname
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"time"
@@ -16,7 +15,7 @@ const maxRobotNames = 26 * 26 * 10 * 10 * 10
 
 var (
 	random         = rand.New(rand.NewSource(time.Now().UnixNano()))
-	names          = map[string]struct{}{}
+	used           = map[string]bool{}
 	availableNames = maxRobotNames
 )
 
@@ -28,20 +27,14 @@ func (r *Robot) Name() (name string, err error) {
 	}
 
 	if availableNames == 0 {
-		return "", errors.New("used all names")
+		return "", fmt.Errorf("used all names")
 	}
 
-	for {
-		r1 := random.Intn(26) + 'A'
-		r2 := random.Intn(26) + 'A'
-		num := random.Intn(1000)
-		r.name = fmt.Sprintf("%c%c%03d", r1, r2, num)
-		if _, ok := names[r.name]; ok {
-			continue
-		}
-		break
+	r.name = newName()
+	for used[r.name] {
+		r.name = newName()
 	}
-	names[r.name] = struct{}{}
+	used[r.name] = true
 	availableNames--
 
 	return r.name, err
@@ -51,4 +44,11 @@ func (r *Robot) Name() (name string, err error) {
 func (r *Robot) Reset() (string, error) {
 	r.name = ""
 	return r.Name()
+}
+
+func newName() string {
+	r1 := random.Intn(26) + 'A'
+	r2 := random.Intn(26) + 'A'
+	num := random.Intn(1000)
+	return fmt.Sprintf("%c%c%03d", r1, r2, num)
 }
