@@ -14,9 +14,8 @@ type Robot struct {
 const maxRobotNames = 26 * 26 * 10 * 10 * 10
 
 var (
-	random         = rand.New(rand.NewSource(time.Now().UnixNano()))
-	used           = map[string]bool{}
-	availableNames = maxRobotNames
+	random = rand.New(rand.NewSource(time.Now().UnixNano()))
+	used   = map[string]bool{}
 )
 
 // Name generates a random name for each robot in the format of two uppercase
@@ -26,7 +25,7 @@ func (r *Robot) Name() (name string, err error) {
 		return r.name, nil
 	}
 
-	if availableNames == 0 {
+	if len(used) == maxRobotNames {
 		return "", fmt.Errorf("used all names")
 	}
 
@@ -35,15 +34,14 @@ func (r *Robot) Name() (name string, err error) {
 		r.name = newName()
 	}
 	used[r.name] = true
-	availableNames--
 
-	return r.name, err
+	return r.name, nil
 }
 
 // Reset wipes the robot name and generates a new one.
 func (r *Robot) Reset() (string, error) {
 	r.name = ""
-	return r.Name()
+	return r.name, nil
 }
 
 func newName() string {
