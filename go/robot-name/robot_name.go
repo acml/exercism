@@ -38,10 +38,9 @@ func (r *Robot) Name() (name string, err error) {
 	return r.name, nil
 }
 
-// Reset wipes the robot name and generates a new one.
-func (r *Robot) Reset() (string, error) {
+// Reset wipes the robot name.
+func (r *Robot) Reset() {
 	r.name = ""
-	return r.name, nil
 }
 
 func newName() string {
