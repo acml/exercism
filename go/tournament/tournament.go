@@ -32,7 +32,17 @@ func Tally(r io.Reader, w io.Writer) error {
 			return fmt.Errorf("erroneous input")
 		}
 
-		competition.updateResults(r[0], r[1], r[2])
+		switch r[2] {
+		case "win":
+			competition.update(r[0], "win")
+			competition.update(r[1], "loss")
+		case "draw":
+			competition.update(r[0], "draw")
+			competition.update(r[1], "draw")
+		case "loss":
+			competition.update(r[0], "loss")
+			competition.update(r[1], "win")
+		}
 	}
 	if err := scanner.Err(); err != nil {
 		return err
@@ -55,20 +65,6 @@ func Tally(r io.Reader, w io.Writer) error {
 			v.won, v.drawn, v.lost, v.points)
 	}
 	return nil
-}
-
-func (competition teams) updateResults(team1, team2, result string) {
-	switch result {
-	case "win":
-		competition.update(team1, "win")
-		competition.update(team2, "loss")
-	case "draw":
-		competition.update(team1, "draw")
-		competition.update(team2, "draw")
-	case "loss":
-		competition.update(team1, "loss")
-		competition.update(team2, "win")
-	}
 }
 
 func (competition teams) update(teamName, result string) {
