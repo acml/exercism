@@ -10,7 +10,6 @@ import (
 
 type team struct {
 	name   string
-	played int
 	won    int
 	drawn  int
 	lost   int
@@ -50,7 +49,10 @@ func Tally(r io.Reader, w io.Writer) error {
 
 	fmt.Fprintf(w, "%-31s|%3s |%3s |%3s |%3s |%3s\n", "Team", "MP", "W", "D", "L", "P")
 	for _, v := range tally {
-		fmt.Fprintf(w, "%-31s|%3d |%3d |%3d |%3d |%3d\n", v.name, v.played, v.won, v.drawn, v.lost, v.points)
+		fmt.Fprintf(w, "%-31s|%3d |%3d |%3d |%3d |%3d\n",
+			v.name,
+			v.won+v.drawn+v.lost,
+			v.won, v.drawn, v.lost, v.points)
 	}
 	return nil
 }
@@ -77,7 +79,6 @@ func (competition teams) update(teamName, result string) {
 		t = &team{name: teamName}
 	}
 
-	t.played++
 	switch result {
 	case "win":
 		t.points += 3
