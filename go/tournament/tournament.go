@@ -49,8 +49,7 @@ func Tally(r io.Reader, w io.Writer) error {
 	}
 
 	fmt.Fprintf(w, "%-31s|%3s |%3s |%3s |%3s |%3s\n", "Team", "MP", "W", "D", "L", "P")
-	tally := competition.toSortedSlice()
-	for _, v := range tally {
+	for _, v := range competition.toSortedSlice() {
 		fmt.Fprintf(w, "%-31s|%3d |%3d |%3d |%3d |%3d\n",
 			v.name,
 			v.won+v.drawn+v.lost,
