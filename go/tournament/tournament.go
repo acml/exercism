@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-type match struct {
+type team struct {
 	name   string
 	played int
 	won    int
@@ -17,31 +17,31 @@ type match struct {
 	points int
 }
 
-type results map[string]*match
+type teams map[string]*team
 
 // Tally the results of a small football competition.
 func Tally(r io.Reader, w io.Writer) error {
 
-	matches := results{}
+	competition := teams{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
 		if len(scanner.Text()) == 0 || strings.HasPrefix(scanner.Text(), "#") {
 			continue
 		}
-		result := strings.Split(scanner.Text(), ";")
-		if len(result) != 3 || (result[2] != "win" && result[2] != "loss" && result[2] != "draw") {
+		r := strings.Split(scanner.Text(), ";")
+		if len(r) != 3 || (r[2] != "win" && r[2] != "loss" && r[2] != "draw") {
 			return fmt.Errorf("erroneous input")
 		}
 
-		matches.updateResults(result[0], result[1], result[2])
+		competition.updateResults(r[0], r[1], r[2])
 	}
 	if err := scanner.Err(); err != nil {
 		return err
 	}
 
-	tally := []*match{}
-	for _, v := range matches {
-		tally = append(tally, v)
+	tally := []*team{}
+	for _, t := range competition {
+		tally = append(tally, t)
 	}
 	sort.Slice(tally, func(i, j int) bool {
 		return tally[i].points > tally[j].points ||
@@ -55,39 +55,39 @@ func Tally(r io.Reader, w io.Writer) error {
 	return nil
 }
 
-func (m results) updateResults(p1, p2, result string) {
+func (competition teams) updateResults(team1, team2, result string) {
 	switch result {
 	case "win":
-		m.update(p1, "win")
-		m.update(p2, "loss")
+		competition.update(team1, "win")
+		competition.update(team2, "loss")
 	case "draw":
-		m.update(p1, "draw")
-		m.update(p2, "draw")
+		competition.update(team1, "draw")
+		competition.update(team2, "draw")
 	case "loss":
-		m.update(p1, "loss")
-		m.update(p2, "win")
+		competition.update(team1, "loss")
+		competition.update(team2, "win")
 	}
 }
 
-func (m results) update(team, result string) {
-	var r *match
-	if v, ok := m[team]; ok {
-		r = v
+func (competition teams) update(teamName, result string) {
+	var t *team
+	if v, ok := competition[teamName]; ok {
+		t = v
 	} else {
-		r = &match{name: team}
+		t = &team{name: teamName}
 	}
 
-	r.played++
+	t.played++
 	switch result {
 	case "win":
-		r.points += 3
-		r.won++
+		t.points += 3
+		t.won++
 	case "draw":
-		r.points++
-		r.drawn++
+		t.points++
+		t.drawn++
 	case "loss":
-		r.lost++
+		t.lost++
 	}
 
-	m[team] = r
+	competition[teamName] = t
 }
