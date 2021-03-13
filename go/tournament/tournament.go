@@ -24,7 +24,7 @@ func Tally(r io.Reader, w io.Writer) error {
 	competition := teams{}
 	scanner := bufio.NewScanner(r)
 	for scanner.Scan() {
-		if len(scanner.Text()) == 0 || strings.HasPrefix(scanner.Text(), "#") {
+		if scanner.Text() == "" || strings.HasPrefix(scanner.Text(), "#") {
 			continue
 		}
 		r := strings.Split(scanner.Text(), ";")
@@ -36,26 +36,19 @@ func Tally(r io.Reader, w io.Writer) error {
 		case "win":
 			competition.update(r[0], "win")
 			competition.update(r[1], "loss")
-		case "draw":
-			competition.update(r[0], "draw")
-			competition.update(r[1], "draw")
 		case "loss":
 			competition.update(r[0], "loss")
 			competition.update(r[1], "win")
+		default:
+			competition.update(r[0], "draw")
+			competition.update(r[1], "draw")
 		}
 	}
 	if err := scanner.Err(); err != nil {
 		return err
 	}
 
-	tally := []*team{}
-	for _, t := range competition {
-		tally = append(tally, t)
-	}
-	sort.Slice(tally, func(i, j int) bool {
-		return tally[i].points > tally[j].points ||
-			(tally[i].points == tally[j].points && tally[i].name < tally[j].name)
-	})
+	tally := competition.toSortedSlice()
 
 	fmt.Fprintf(w, "%-31s|%3s |%3s |%3s |%3s |%3s\n", "Team", "MP", "W", "D", "L", "P")
 	for _, v := range tally {
@@ -87,4 +80,19 @@ func (competition teams) update(teamName, result string) {
 	}
 
 	competition[teamName] = t
+}
+
+func (competition teams) toSortedSlice() []*team {
+	tally := make([]*team, len(competition))
+	idx := 0
+	for _, t := range competition {
+		tally[idx] = t
+		idx++
+	}
+	sort.Slice(tally, func(i, j int) bool {
+		return tally[i].points > tally[j].points ||
+			(tally[i].points == tally[j].points && tally[i].name < tally[j].name)
+	})
+
+	return tally
 }
