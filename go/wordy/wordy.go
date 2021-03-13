@@ -30,13 +30,13 @@ func Answer(input string) (int, bool) {
 			n, _ := strconv.Atoi(s[i])
 			i++
 			switch operation {
-			case "add":
+			case "plus":
 				res += n
-			case "subtract":
+			case "minus":
 				res -= n
-			case "divide":
+			case "divided":
 				res /= n
-			case "multiply":
+			case "multiplied":
 				res *= n
 			default:
 				res = n
@@ -45,19 +45,13 @@ func Answer(input string) (int, bool) {
 			op = getOperation
 		case getOperation:
 			switch s[i] {
-			case "plus":
-				operation = "add"
-			case "minus":
-				operation = "subtract"
+			case "plus", "minus":
+				operation = s[i]
 			case "multiplied", "divided":
 				if s[i+1] != "by" {
 					return 0, false
 				}
-				if s[i] == "multiplied" {
-					operation = "multiply"
-				} else {
-					operation = "divide"
-				}
+				operation = s[i]
 				i++
 			default:
 				return 0, false
