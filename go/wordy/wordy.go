@@ -27,7 +27,10 @@ func Answer(input string) (int, bool) {
 		case initial:
 			fallthrough
 		case getOperand:
-			n, _ := strconv.Atoi(s[i])
+			n, err := strconv.Atoi(s[i])
+			if err != nil {
+				return 0, false
+			}
 			i++
 			switch operation {
 			case "plus":
@@ -41,7 +44,6 @@ func Answer(input string) (int, bool) {
 			default:
 				res = n
 			}
-			operation = ""
 			op = getOperation
 		case getOperation:
 			operation = s[i]
