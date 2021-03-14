@@ -28,7 +28,7 @@ func Tally(r io.Reader, w io.Writer) error {
 			continue
 		}
 		r := strings.Split(scanner.Text(), ";")
-		if len(r) != 3 || (r[2] != "win" && r[2] != "loss" && r[2] != "draw") {
+		if len(r) != 3 {
 			return fmt.Errorf("erroneous input")
 		}
 
@@ -39,9 +39,11 @@ func Tally(r io.Reader, w io.Writer) error {
 		case "loss":
 			competition.update(r[0], "loss")
 			competition.update(r[1], "win")
-		default:
+		case "draw":
 			competition.update(r[0], "draw")
 			competition.update(r[1], "draw")
+		default:
+			return fmt.Errorf("erroneous input")
 		}
 	}
 	if err := scanner.Err(); err != nil {
