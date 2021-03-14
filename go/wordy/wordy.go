@@ -22,7 +22,7 @@ func Answer(input string) (int, bool) {
 
 	op, res, operation := initial, 0, ""
 	s := strings.Split(strings.TrimSuffix(input, "?"), " ")
-	for i := 2; i < len(s); {
+	for i := 2; i < len(s); i++ {
 		switch op {
 		case initial:
 			fallthrough
@@ -31,19 +31,7 @@ func Answer(input string) (int, bool) {
 			if err != nil {
 				return 0, false
 			}
-			i++
-			switch operation {
-			case "plus":
-				res += n
-			case "minus":
-				res -= n
-			case "divided":
-				res /= n
-			case "multiplied":
-				res *= n
-			default:
-				res = n
-			}
+			res = doOperation(res, n, operation)
 			op = getOperation
 		case getOperation:
 			operation = s[i]
@@ -57,7 +45,6 @@ func Answer(input string) (int, bool) {
 			default:
 				return 0, false
 			}
-			i++
 			op = getOperand
 		}
 	}
@@ -65,4 +52,19 @@ func Answer(input string) (int, bool) {
 		return 0, false
 	}
 	return res, true
+}
+
+func doOperation(a, b int, operation string) int {
+	switch operation {
+	case "plus":
+		return a + b
+	case "minus":
+		return a - b
+	case "divided":
+		return a / b
+	case "multiplied":
+		return a * b
+	default:
+		return b
+	}
 }
