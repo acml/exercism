@@ -44,15 +44,14 @@ func Answer(input string) (int, bool) {
 			operation = ""
 			op = getOperation
 		case getOperation:
+			operation = s[i]
 			switch s[i] {
-			case "plus", "minus":
-				operation = s[i]
 			case "multiplied", "divided":
 				if s[i+1] != "by" {
 					return 0, false
 				}
-				operation = s[i]
 				i++
+			case "plus", "minus":
 			default:
 				return 0, false
 			}
