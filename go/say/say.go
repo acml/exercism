@@ -16,9 +16,6 @@ var spell = [][]string{
 	{"seventy"},
 	{"eighty"},
 	{"ninety"},
-	{"hundred"},
-	{"thousand"},
-	{"million"},
 }
 
 // Say given a number from 0 to 999,999,999,999, spells out that number in
