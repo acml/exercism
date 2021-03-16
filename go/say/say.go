@@ -65,7 +65,7 @@ func sayGroup(sb *strings.Builder, group int64) {
 
 	// spell tens
 	tens := group % 100
-	if hundreds != 0 && (tens != 0 || tens/10 != 0) {
+	if hundreds != 0 && tens != 0 {
 		sb.WriteString(" ")
 	}
 	switch tens / 10 {
