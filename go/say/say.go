@@ -2,6 +2,7 @@ package say
 
 import (
 	"math"
+	"strings"
 )
 
 var groups = []string{"", "thousand", "million", "billion"}
@@ -30,7 +31,7 @@ func Say(input int64) (string, bool) {
 		return "zero", true
 	}
 
-	s := ""
+	sb := strings.Builder{}
 	for n := len(groups) - 1; n >= 0; n-- {
 
 		group := (input % int64(math.Pow10((n+1)*3))) / int64(math.Pow10(n*3))
@@ -38,44 +39,52 @@ func Say(input int64) (string, bool) {
 			continue
 		}
 
-		if s != "" {
-			s += " "
+		if sb.Len() != 0 {
+			sb.WriteString(" ")
 		}
 
-		// spell hundreds
-		hundreds := group / 100
-		if hundreds > 0 {
-			s += spell[0][hundreds] + " hundred"
-		}
-
-		// spell tens
-		switch tens := group % 100; tens / 10 {
-		case 0:
-			if tens != 0 {
-				if hundreds != 0 {
-					s += " "
-				}
-				s += spell[0][tens]
-			}
-		case 1:
-			if hundreds != 0 {
-				s += " "
-			}
-			s += spell[1][tens%10]
-		case 2, 3, 4, 5, 6, 7, 8, 9:
-			if hundreds != 0 {
-				s += " "
-			}
-			s += spell[tens/10][0]
-			if tens%10 != 0 {
-				s += "-" + spell[0][tens%10]
-			}
-		}
+		sayGroup(&sb, group)
 
 		if n > 0 {
-			s += " " + groups[n]
+			sb.WriteString(" ")
+			sb.WriteString(groups[n])
 		}
 	}
 
-	return s, true
+	return sb.String(), true
+}
+
+func sayGroup(sb *strings.Builder, group int64) {
+
+	// spell hundreds
+	hundreds := group / 100
+	if hundreds > 0 {
+		sb.WriteString(spell[0][int(hundreds)])
+		sb.WriteString(" hundred")
+	}
+
+	// spell tens
+	switch tens := group % 100; tens / 10 {
+	case 0:
+		if tens != 0 {
+			if hundreds != 0 {
+				sb.WriteString(" ")
+			}
+			sb.WriteString(spell[0][tens])
+		}
+	case 1:
+		if hundreds != 0 {
+			sb.WriteString(" ")
+		}
+		sb.WriteString(spell[1][tens%10])
+	case 2, 3, 4, 5, 6, 7, 8, 9:
+		if hundreds != 0 {
+			sb.WriteString(" ")
+		}
+		sb.WriteString(spell[tens/10][0])
+		if tens%10 != 0 {
+			sb.WriteString("-")
+			sb.WriteString(spell[0][tens%10])
+		}
+	}
 }
