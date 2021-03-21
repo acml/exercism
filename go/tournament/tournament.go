@@ -16,7 +16,7 @@ type team struct {
 	points int
 }
 
-type teams map[string]*team
+type teams map[string]team
 
 // Tally the results of a small football competition.
 func Tally(r io.Reader, w io.Writer) error {
@@ -32,19 +32,38 @@ func Tally(r io.Reader, w io.Writer) error {
 			return fmt.Errorf("erroneous input")
 		}
 
+		t1 := competition[r[0]]
+		t1.name = r[0]
+
+		t2 := competition[r[1]]
+		t2.name = r[1]
+
 		switch r[2] {
 		case "win":
-			competition.update(r[0], "win")
-			competition.update(r[1], "loss")
+			t1.points += 3
+			t1.won++
+
+			t2.lost++
+
 		case "loss":
-			competition.update(r[0], "loss")
-			competition.update(r[1], "win")
+			t1.lost++
+
+			t2.points += 3
+			t2.won++
+
 		case "draw":
-			competition.update(r[0], "draw")
-			competition.update(r[1], "draw")
+			t1.points++
+			t1.drawn++
+
+			t2.points++
+			t2.drawn++
+
 		default:
 			return fmt.Errorf("erroneous input")
 		}
+
+		competition[r[0]] = t1
+		competition[r[1]] = t2
 	}
 	if err := scanner.Err(); err != nil {
 		return err
@@ -60,30 +79,8 @@ func Tally(r io.Reader, w io.Writer) error {
 	return nil
 }
 
-func (competition teams) update(teamName, result string) {
-	var t *team
-	if v, ok := competition[teamName]; ok {
-		t = v
-	} else {
-		t = &team{name: teamName}
-	}
-
-	switch result {
-	case "win":
-		t.points += 3
-		t.won++
-	case "draw":
-		t.points++
-		t.drawn++
-	case "loss":
-		t.lost++
-	}
-
-	competition[teamName] = t
-}
-
-func (competition teams) toSortedSlice() []*team {
-	tally := make([]*team, len(competition))
+func (competition teams) toSortedSlice() []team {
+	tally := make([]team, len(competition))
 	idx := 0
 	for _, t := range competition {
 		tally[idx] = t
