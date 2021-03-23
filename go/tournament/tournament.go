@@ -69,27 +69,24 @@ func Tally(r io.Reader, w io.Writer) error {
 		return err
 	}
 
+	tally := make([]team, 0, len(competition))
+	for _, t := range competition {
+		tally = append(tally, t)
+	}
+
+	sort.Slice(tally, func(i, j int) bool {
+		if tally[i].points == tally[j].points {
+			return tally[i].name < tally[j].name
+		}
+		return tally[i].points > tally[j].points
+	})
+
 	fmt.Fprintf(w, "%-30s | %2s | %2s | %2s | %2s | %2s\n", "Team", "MP", "W", "D", "L", "P")
-	for _, v := range competition.toSortedSlice() {
+	for _, v := range tally {
 		fmt.Fprintf(w, "%-30s | %2d | %2d | %2d | %2d | %2d\n",
 			v.name,
 			v.won+v.drawn+v.lost,
 			v.won, v.drawn, v.lost, v.points)
 	}
 	return nil
-}
-
-func (competition teams) toSortedSlice() []team {
-	tally := make([]team, len(competition))
-	idx := 0
-	for _, t := range competition {
-		tally[idx] = t
-		idx++
-	}
-	sort.Slice(tally, func(i, j int) bool {
-		return tally[i].points > tally[j].points ||
-			(tally[i].points == tally[j].points && tally[i].name < tally[j].name)
-	})
-
-	return tally
 }
