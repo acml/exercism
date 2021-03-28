@@ -1,6 +1,9 @@
 package twelve
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 var day = [12]string{
 	"first",
@@ -34,33 +37,31 @@ var given = [12]string{
 
 // Song outputs the lyrics to 'The Twelve Days of Christmas'.
 func Song() string {
-	song := ""
+	sb := strings.Builder{}
 	for d := 1; d <= 12; d++ {
-		song += Verse(d)
+		sb.WriteString(Verse(d))
 		if d < 12 {
-			song += "\n"
+			sb.WriteString("\n")
 		}
 	}
-	return song
+	return sb.String()
 }
 
 // Verse outputs a single verse for the given day of 'The Twelve Days of
 // Christmas'.
 func Verse(n int) string {
-	if n > 12 {
-		n = 12
-	}
-	verse := fmt.Sprintf("On the %s day of Christmas my true love gave to me: ", day[n-1])
+	sb := strings.Builder{}
+	fmt.Fprintf(&sb, "On the %s day of Christmas my true love gave to me: ", day[n-1])
 	for d := n; d > 0; d-- {
 		if d < n {
 			if d == 1 {
-				verse += ", and "
+				sb.WriteString(", and ")
 			} else {
-				verse += ", "
+				sb.WriteString(", ")
 			}
 		}
-		verse += given[d-1]
+		sb.WriteString(given[d-1])
 	}
-	verse += "."
-	return verse
+	sb.WriteString(".")
+	return sb.String()
 }
