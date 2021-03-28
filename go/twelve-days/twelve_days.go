@@ -2,7 +2,7 @@ package twelve
 
 import "fmt"
 
-var day = []string{
+var day = [12]string{
 	"first",
 	"second",
 	"third",
@@ -17,7 +17,7 @@ var day = []string{
 	"twelfth",
 }
 
-var given = []string{
+var given = [12]string{
 	"a Partridge in a Pear Tree",
 	"two Turtle Doves",
 	"three French Hens",
@@ -53,7 +53,7 @@ func Verse(n int) string {
 	verse := fmt.Sprintf("On the %s day of Christmas my true love gave to me: ", day[n-1])
 	for d := n; d > 0; d-- {
 		if d < n {
-			if d == 1 && n > 1 {
+			if d == 1 {
 				verse += ", and "
 			} else {
 				verse += ", "
