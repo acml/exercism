@@ -34,9 +34,8 @@ func NewGarden(diagram string, children []string) (*Garden, error) {
 	for _, c := range children {
 		if _, ok := set[c]; ok {
 			return nil, fmt.Errorf("duplicate name")
-		} else {
-			set[c] = struct{}{}
 		}
+		set[c] = struct{}{}
 	}
 	copy(g.children, children)
 	if len(g.cups) != 2 && len(g.cups[0]) != len(g.cups[1]) || len(g.cups[0]) != len(g.children)*2 {
