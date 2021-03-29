@@ -6,6 +6,7 @@ import (
 	"strings"
 )
 
+// Garden of flowers
 type Garden struct {
 	cups     []string
 	children []string
