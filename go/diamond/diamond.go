@@ -3,6 +3,7 @@ package diamond
 import (
 	"errors"
 	"fmt"
+	"io"
 	"strings"
 )
 
@@ -12,27 +13,25 @@ func Gen(b byte) (string, error) {
 		return "", errors.New("Invalid Char")
 	}
 
-	l := int(b-'A') + 1
+	length := int(b-'A') + 1
 	sb := strings.Builder{}
-	for i := 0; i < l-1; i++ {
-		for j := 0; j < 2*l-1; j++ {
-			if j == (2*l-1)/2-i || j == (2*l-1)/2+i {
-				fmt.Fprintf(&sb, "%c", 'A'+(i%l))
-			} else {
-				fmt.Fprintf(&sb, " ")
-			}
-		}
+	for i := 0; i < length-1; i++ {
+		diamondLine(&sb, i, length)
 		fmt.Fprintf(&sb, "\n")
 	}
-	for i := l - 1; i >= 0; i-- {
-		for j := 0; j < 2*l-1; j++ {
-			if j == (2*l-1)/2-i || j == (2*l-1)/2+i {
-				fmt.Fprintf(&sb, "%c", 'A'+(i%l))
-			} else {
-				fmt.Fprintf(&sb, " ")
-			}
-		}
+	for i := length - 1; i >= 0; i-- {
+		diamondLine(&sb, i, length)
 		fmt.Fprintf(&sb, "\n")
 	}
 	return sb.String(), nil
+}
+
+func diamondLine(w io.Writer, n, length int) {
+	for j := 0; j < 2*length-1; j++ {
+		if j == (2*length-1)/2-n || j == (2*length-1)/2+n {
+			fmt.Fprintf(w, "%c", 'A'+(n%length))
+		} else {
+			fmt.Fprintf(w, " ")
+		}
+	}
 }
