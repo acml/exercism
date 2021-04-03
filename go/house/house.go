@@ -12,7 +12,7 @@ var verse = []string{
 	"the cat\nthat killed ",
 	"the rat\nthat ate ",
 	"the malt\nthat lay in ",
-	"",
+	"the house that Jack built.",
 }
 
 // Song recites the nursery rhyme 'This is the House that Jack Built'.
@@ -34,7 +34,7 @@ func Verse(v int) string {
 
 func generateVerse(v int) string {
 	if v == 0 {
-		return "the house that Jack built."
+		return ""
 	}
 	return verse[12-v] + generateVerse(v-1)
 }
