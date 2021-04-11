@@ -38,27 +38,27 @@ func diceMap(dice []int) map[int]int {
 	return diceCounts
 }
 
-func ones(dice []int) (score int) {
+func ones(dice []int) int {
 	return count(dice, 1)
 }
 
-func twos(dice []int) (score int) {
+func twos(dice []int) int {
 	return 2 * count(dice, 2)
 }
 
-func threes(dice []int) (score int) {
+func threes(dice []int) int {
 	return 3 * count(dice, 3)
 }
 
-func fours(dice []int) (score int) {
+func fours(dice []int) int {
 	return 4 * count(dice, 4)
 }
 
-func fives(dice []int) (score int) {
+func fives(dice []int) int {
 	return 5 * count(dice, 5)
 }
 
-func sixes(dice []int) (score int) {
+func sixes(dice []int) int {
 	return 6 * count(dice, 6)
 }
 
@@ -93,20 +93,18 @@ func fullHouse(dice []int) (score int) {
 	return score
 }
 
-func fourOfAKind(dice []int) (score int) {
+func fourOfAKind(dice []int) int {
 	diceCounts := diceMap(dice)
 	if len(diceCounts) > 2 {
 		return 0
 	}
 
 	for d, count := range diceCounts {
-		if count < 4 {
-			continue
+		if count >= 4 {
+			return d * 4
 		}
-		score += d * 4
-		break
 	}
-	return score
+	return 0
 }
 
 func littleStraight(dice []int) int {
@@ -122,8 +120,9 @@ func straight(dice []int, offset int) int {
 	if len(diceCounts) < 5 {
 		return 0
 	}
-	for i := 0; i < 5; i++ {
-		if _, ok := diceCounts[i+offset]; !ok {
+
+	for d := offset; d <= offset+4; d++ {
+		if diceCounts[d] != 1 {
 			return 0
 		}
 	}
