@@ -30,7 +30,7 @@ func why(n int) string {
 
 // Verse recites a specific verse from the song.
 func Verse(n int) string {
-	if n == 8 {
+	if n == len(what) {
 		return "I know an old lady who swallowed a " + what[n-1]
 	}
 	return "I know an old lady who swallowed a " + what[n-1] + why(n)
@@ -50,5 +50,5 @@ func Verses(start, stop int) (verses string) {
 // Song generates the lyrics of the song 'I Know an Old Lady Who Swallowed a
 // Fly'.
 func Song() string {
-	return Verses(1, 8)
+	return Verses(1, len(what))
 }
