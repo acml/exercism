@@ -22,15 +22,15 @@ func Score(dice []int, category string) (score int) {
 		}
 		return score
 	case "yacht":
-		for p, v := range dice {
-			if p > 0 && v != dice[p-1] {
+		for p, d := range dice {
+			if p > 0 && d != dice[p-1] {
 				return 0
 			}
 		}
 		return 50
 	case "choice":
-		for _, v := range dice {
-			score += v
+		for _, d := range dice {
+			score += d
 		}
 		return score
 	}
