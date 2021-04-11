@@ -12,7 +12,7 @@ type Matrix [][]int
 // New is a Matrix constructor
 func New(input string) (Matrix, error) {
 	rows := strings.Split(input, "\n")
-	m := make([][]int, len(rows))
+	m := make(Matrix, len(rows))
 	var ncol int
 	for i, r := range rows {
 		col := strings.Fields(r)
@@ -37,7 +37,7 @@ func New(input string) (Matrix, error) {
 
 // Rows returns the rows of the matrix
 func (m Matrix) Rows() [][]int {
-	rows := make([][]int, len(m))
+	rows := make(Matrix, len(m))
 	for i, r := range m {
 		rows[i] = make([]int, len(r))
 		copy(rows[i], r)
@@ -47,7 +47,7 @@ func (m Matrix) Rows() [][]int {
 
 // Cols returns the columns of the matrix
 func (m Matrix) Cols() [][]int {
-	cols := make([][]int, len(m[0]))
+	cols := make(Matrix, len(m[0]))
 	for j := 0; j < len(m[0]); j++ {
 		cols[j] = make([]int, len(m))
 		for i := 0; i < len(m); i++ {
