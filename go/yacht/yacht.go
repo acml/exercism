@@ -1,24 +1,34 @@
 package yacht
 
-var scoreFunc = map[string]func([]int) int{
-	"ones":            ones,
-	"twos":            twos,
-	"threes":          threes,
-	"fours":           fours,
-	"fives":           fives,
-	"sixes":           sixes,
-	"yacht":           yacht,
-	"choice":          choice,
-	"full house":      fullHouse,
-	"four of a kind":  fourOfAKind,
-	"little straight": littleStraight,
-	"big straight":    bigStraight,
-}
-
 // Score calculates the score of a throw of the dice which depends on category
 // chosen.
 func Score(dice []int, category string) (score int) {
-	return scoreFunc[category](dice)
+	switch category {
+	case "ones":
+		return count(dice, 1)
+	case "twos":
+		return count(dice, 2) * 2
+	case "threes":
+		return count(dice, 3) * 3
+	case "fours":
+		return count(dice, 4) * 4
+	case "fives":
+		return count(dice, 5) * 5
+	case "sixes":
+		return count(dice, 6) * 6
+	case "yacht":
+		return yacht(dice)
+	case "choice":
+		return choice(dice)
+	case "full house":
+		return fullHouse(dice)
+	case "four of a kind":
+		return fourOfAKind(dice)
+	case "little straight":
+		return straight(dice, 1)
+	default: //case "big straight":
+		return straight(dice, 2)
+	}
 }
 
 func count(dice []int, v int) (n int) {
@@ -30,36 +40,12 @@ func count(dice []int, v int) (n int) {
 	return n
 }
 
-func diceMap(dice []int) map[int]int {
-	diceCounts := map[int]int{}
+func diceCounts(dice []int) map[int]int {
+	counts := map[int]int{}
 	for _, d := range dice {
-		diceCounts[d]++
+		counts[d]++
 	}
-	return diceCounts
-}
-
-func ones(dice []int) int {
-	return count(dice, 1)
-}
-
-func twos(dice []int) int {
-	return 2 * count(dice, 2)
-}
-
-func threes(dice []int) int {
-	return 3 * count(dice, 3)
-}
-
-func fours(dice []int) int {
-	return 4 * count(dice, 4)
-}
-
-func fives(dice []int) int {
-	return 5 * count(dice, 5)
-}
-
-func sixes(dice []int) int {
-	return 6 * count(dice, 6)
+	return counts
 }
 
 func yacht(dice []int) int {
@@ -79,12 +65,12 @@ func choice(dice []int) (score int) {
 }
 
 func fullHouse(dice []int) (score int) {
-	diceCounts := diceMap(dice)
-	if len(diceCounts) != 2 {
+	counts := diceCounts(dice)
+	if len(counts) != 2 {
 		return 0
 	}
 
-	for d, count := range diceCounts {
+	for d, count := range counts {
 		if count != 2 && count != 3 {
 			return 0
 		}
@@ -94,12 +80,12 @@ func fullHouse(dice []int) (score int) {
 }
 
 func fourOfAKind(dice []int) int {
-	diceCounts := diceMap(dice)
-	if len(diceCounts) > 2 {
+	counts := diceCounts(dice)
+	if len(counts) > 2 {
 		return 0
 	}
 
-	for d, count := range diceCounts {
+	for d, count := range counts {
 		if count >= 4 {
 			return d * 4
 		}
@@ -107,22 +93,14 @@ func fourOfAKind(dice []int) int {
 	return 0
 }
 
-func littleStraight(dice []int) int {
-	return straight(dice, 1)
-}
-
-func bigStraight(dice []int) int {
-	return straight(dice, 2)
-}
-
 func straight(dice []int, offset int) int {
-	diceCounts := diceMap(dice)
-	if len(diceCounts) < 5 {
+	counts := diceCounts(dice)
+	if len(counts) < 5 {
 		return 0
 	}
 
 	for d := offset; d <= offset+4; d++ {
-		if diceCounts[d] != 1 {
+		if counts[d] != 1 {
 			return 0
 		}
 	}
