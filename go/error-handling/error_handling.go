@@ -4,14 +4,14 @@ package erratum
 // closes that resource (in all cases)
 func Use(o ResourceOpener, input string) (err error) {
 	var res Resource
-	for {
-		res, err = o()
-		if _, ok := err.(TransientError); !ok {
-			break
+	res, err = o()
+	for err != nil {
+		switch err.(type) {
+		case TransientError:
+			res, err = o()
+		default:
+			return err
 		}
-	}
-	if err != nil {
-		return err
 	}
 	defer res.Close()
 
@@ -23,6 +23,8 @@ func Use(o ResourceOpener, input string) (err error) {
 			err = r.(error)
 		}
 	}()
+
 	res.Frob(input)
-	return nil
+
+	return err
 }
