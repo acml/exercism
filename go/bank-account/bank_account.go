@@ -34,21 +34,21 @@ func (a *Account) Close() (payout int64, ok bool) {
 
 // Balance returns back the balance of the bank account
 func (a *Account) Balance() (balance int64, ok bool) {
+	a.m.Lock()
+	defer a.m.Unlock()
 	if a.isClosed {
 		return 0, false
 	}
-	a.m.Lock()
-	defer a.m.Unlock()
 	return a.balance, true
 }
 
 // Deposit is used for both bank account deposit and withdrawals.
 func (a *Account) Deposit(amount int64) (newBalance int64, ok bool) {
+	a.m.Lock()
+	defer a.m.Unlock()
 	if a.isClosed {
 		return 0, false
 	}
-	a.m.Lock()
-	defer a.m.Unlock()
 	if a.balance+amount < 0 {
 		return 0, false
 	}
