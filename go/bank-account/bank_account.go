@@ -4,9 +4,9 @@ import "sync"
 
 // Account represents a bank account
 type Account struct {
-	balance  int64
-	isClosed bool
-	m        *sync.Mutex
+	sync.RWMutex
+	balance int64
+	closed  bool
 }
 
 // Open creates a new bank account
@@ -15,28 +15,25 @@ func Open(initialDeposit int64) *Account {
 		return nil
 	}
 
-	return &Account{
-		balance: initialDeposit,
-		m:       &sync.Mutex{},
-	}
+	return &Account{balance: initialDeposit}
 }
 
 // Close the bank account
 func (a *Account) Close() (payout int64, ok bool) {
-	a.m.Lock()
-	defer a.m.Unlock()
-	if a.isClosed {
+	a.Lock()
+	defer a.Unlock()
+	if a.closed {
 		return 0, false
 	}
-	a.isClosed = true
+	a.closed = true
 	return a.balance, true
 }
 
 // Balance returns back the balance of the bank account
 func (a *Account) Balance() (balance int64, ok bool) {
-	a.m.Lock()
-	defer a.m.Unlock()
-	if a.isClosed {
+	a.RLock()
+	defer a.RUnlock()
+	if a.closed {
 		return 0, false
 	}
 	return a.balance, true
@@ -44,9 +41,9 @@ func (a *Account) Balance() (balance int64, ok bool) {
 
 // Deposit is used for both bank account deposit and withdrawals.
 func (a *Account) Deposit(amount int64) (newBalance int64, ok bool) {
-	a.m.Lock()
-	defer a.m.Unlock()
-	if a.isClosed {
+	a.Lock()
+	defer a.Unlock()
+	if a.closed {
 		return 0, false
 	}
 	if a.balance+amount < 0 {
