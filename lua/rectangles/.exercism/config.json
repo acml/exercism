@@ -1,0 +1,20 @@
+{
+  "authors": [
+    "ryanplusplus"
+  ],
+  "contributors": [
+    "aarti"
+  ],
+  "files": {
+    "solution": [
+      "rectangles.lua"
+    ],
+    "test": [
+      "rectangles_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Count the rectangles in an ASCII diagram."
+}

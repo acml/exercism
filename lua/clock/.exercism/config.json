@@ -1,0 +1,23 @@
+{
+  "authors": [
+    "aarti"
+  ],
+  "contributors": [
+    "etandel",
+    "kytrinyx",
+    "ryanplusplus"
+  ],
+  "files": {
+    "solution": [
+      "clock.lua"
+    ],
+    "test": [
+      "clock_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Implement a clock that handles times without dates.",
+  "source": "Pairing session with Erin Drummond"
+}

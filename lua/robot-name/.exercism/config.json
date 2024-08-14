@@ -1,0 +1,22 @@
+{
+  "authors": [
+    "aarti"
+  ],
+  "contributors": [
+    "etandel",
+    "ryanplusplus"
+  ],
+  "files": {
+    "solution": [
+      "robot-name.lua"
+    ],
+    "test": [
+      "robot-name_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Manage robot factory settings.",
+  "source": "A debugging session with Paul Blackwell at gSchool."
+}

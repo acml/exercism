@@ -1,0 +1,24 @@
+{
+  "authors": [
+    "aarti"
+  ],
+  "contributors": [
+    "etandel",
+    "kytrinyx",
+    "ryanplusplus"
+  ],
+  "files": {
+    "solution": [
+      "triangle.lua"
+    ],
+    "test": [
+      "triangle_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Determine if a triangle is equilateral, isosceles, or scalene.",
+  "source": "The Ruby Koans triangle project, parts 1 & 2",
+  "source_url": "https://web.archive.org/web/20220831105330/http://rubykoans.com"
+}

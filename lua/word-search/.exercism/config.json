@@ -1,0 +1,20 @@
+{
+  "authors": [
+    "ryanplusplus"
+  ],
+  "contributors": [
+    "aarti"
+  ],
+  "files": {
+    "solution": [
+      "word-search.lua"
+    ],
+    "test": [
+      "word-search_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Create a program to solve a word search puzzle."
+}

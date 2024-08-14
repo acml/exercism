@@ -1,0 +1,22 @@
+{
+  "authors": [
+    "ryanplusplus"
+  ],
+  "contributors": [
+    "aarti",
+    "elyashiv"
+  ],
+  "files": {
+    "solution": [
+      "matching-brackets.lua"
+    ],
+    "test": [
+      "matching-brackets_spec.lua"
+    ],
+    "example": [
+      ".meta/example.lua"
+    ]
+  },
+  "blurb": "Make sure the brackets and braces all match.",
+  "source": "Ginna Baker"
+}
