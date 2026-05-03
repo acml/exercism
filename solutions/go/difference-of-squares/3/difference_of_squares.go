@@ -1,0 +1,27 @@
+// Package diffsquares provides a functions to find the difference between the
+// square of the sum and the sum of the squares of the first N natural numbers.
+package diffsquares
+
+// SquareOfSum calculates the square of the sum of the first ten natural
+// numbers.
+func SquareOfSum(n int) (sum int) {
+	for ; n > 0; n-- {
+		sum += n
+	}
+	return sum * sum
+}
+
+// SumOfSquares calculates the sum of the squares of the first ten natural
+// numbers.
+func SumOfSquares(n int) (sum int) {
+	for ; n > 0; n-- {
+		sum += n * n
+	}
+	return sum
+}
+
+// Difference finds the difference between the square of the sum and the sum of
+// the squares of the first N natural numbers.
+func Difference(n int) int {
+	return SquareOfSum(n) - SumOfSquares(n)
+}
